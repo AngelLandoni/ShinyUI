@@ -1,7 +1,10 @@
-# ShinyUI
 
-A simple declarative UI framework.
-Currently, this project is in early development.
+<p align="center">
+  <img src="https://github.com/AngelLandoni/ShinyUI/blob/main/Assets/Readme/ShinyUI.png">
+</p>
+
+<h3 align="center">A simple declarative UI framework</h3>
+<h6 align="center">Currently, this project is in early development</h6>
 
 ## Why "ShinyUI"?.
 
