@@ -23,12 +23,12 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension CenterModifierElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
 
         guard let childFrame = tryLayout(the: child,
                                          with: constraint,
-                                         in: world) else { return }
+                                         in: storable) else { return }
 
         var horizontalShift: Float = 0
         var verticalShift: Float = 0
@@ -43,7 +43,7 @@ extension CenterModifierElement: Layout {
             horizontalShift = (constraint.width - childFrame.size.width) / 2
         }
 
-        var selfFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
 
         // Delta = Position where the element should be - last element position.
         // It is carrying the last position so it must get the variation.
@@ -57,11 +57,11 @@ extension CenterModifierElement: Layout {
         // Add to the element and element's children the delta in order to
         // shift them to the correct position.
         shiftPosition(to: child,
-                      in: world,
+                      in: storable,
                       shift: Point(x: deltaX, y: deltaY))
 
         selfFrame.size = constraint
 
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

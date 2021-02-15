@@ -55,19 +55,19 @@ struct AnyViewStorage<V: View>: AnyViewBase {
 
 struct AnyView: View {
     let storage: AnyViewBase
-    let builder: (World) -> Element
+    let builder: (AnyStorable) -> Element
 
     init<V: View>(_ view: V) {
         storage = AnyViewStorage(view)
-        builder = { world in
-            buildElementTree(view, world)
+        builder = { storable in
+            buildElementTree(view, storable)
         }
     }
 
     public var body: Never { fatalError() }
 
-    func build(_ world: World) -> Element {
-        builder(world)
+    func build<S: Storable>(in storable: S) -> Element {
+        builder(storable.asAny)
     }
 
     func didLoad() {

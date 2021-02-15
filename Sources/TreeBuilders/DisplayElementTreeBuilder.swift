@@ -23,73 +23,61 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 protocol TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World,
-                                 _ host: DisplayElement)
+    func buildDisplayElementTree<S: Storable>(_ storable: S,
+                                              _ host: DisplayElement)
 }
 
-// MARK: - Main builder
+/// Creates a new element using the type.
+///
+/// - parameter elementType: The type of the element to be created.
+func createDisplayElement<T: DisplayElement, S: Storable>(
+    type displayElementType: T.Type,
+    for element: Element,
+    in storable: S
+) -> T {
+    let displayElement: T = displayElementType.init()
+    storable.registerDisplay(element: displayElement, with: element.elementID)
+    return displayElement
+}
 
-extension World {
-    /// Creates a new element using the type.
-    ///
-    /// - parameter elementType: The type of the element to be created.
-    func createDisplayElement<T: DisplayElement>(
-        _ displayElementType: T.Type,
-        _ element: Element
-    ) -> T {
-        let displayElement: T = displayElementType.init()
-        registerDisplay(displayElement, element.elementID)
-        return displayElement
+func render(in host: DisplayElement, using world: World) {
+    guard let rootId = world.rootElement?.elementID else {
+        fatalError(ErrorMessages.emptyRoot)
     }
-}
-
-// MARK: - Entrypoint
-
-extension World {
-    /// Iterates over all the elements and generate the displays for each of them.
-    ///
-    /// - Parameter host: The element used as an anchor point to show all the tree.
-    func render(_ host: DisplayElement) {
-        guard let rootElementID = rootElement else {
-            fatalError("World does not have an element root ID")
-        }
-        guard let rootElement = elements[rootElementID] else {
-            fatalError("""
-                World does not have an element with id: \(rootElementID)
-            """)
-        }
-        rootDisplayElement = host
-        buildDisplayElementTree(rootElement, self, host)
-    }
-}
-
-func buildDisplayElementTree(_ element: ElementID,
-                             _ world: World,
-                             _ host: DisplayElement) {
-    guard let element = world.element(for: element) else {
+    guard let rootElement = world.element(for: rootId) else {
         fatalError(ErrorMessages.elementNotFound)
     }
-    buildDisplayElementTree(element, world, host)
+    world.updateRootDisplay(element: host)
+    buildDisplayElementTree(rootElement, world, host)
 }
 
-func buildDisplayElementTree(_ element: Element,
-                             _ world: World,
-                             _ host: DisplayElement) {
-
-    defer {
-        world.displayAsBeenRendered(element.elementID)
+func buildDisplayElementTree<S: Storable>(_ element: ElementID,
+                                          _ storable: S,
+                                          _ host: DisplayElement) {
+    guard let element = storable.element(for: element) else {
+        fatalError(ErrorMessages.elementNotFound)
     }
+    buildDisplayElementTree(element, storable, host)
+}
 
+func buildDisplayElementTree<S: Storable>(_ element: Element,
+                                          _ storable: S,
+                                          _ host: DisplayElement) {
+    
+    defer {
+        storable.displayHasBeenRendered(element.elementID)
+    }
+    
     // Check if the element is renderable if it is call the render method
     // to get the renderable component.
     if let displayElementBuilder = element as? TreeDisplayElementBuilder {
-        return displayElementBuilder.buildDisplayElementTree(world, host)
+        return displayElementBuilder.buildDisplayElementTree(storable, host)
     }
 
     // If the element is not visual representable it has to derive the
     // process to the child.
-    if let elementChildren = world.children(of: element.elementID) {
-        return buildDisplayElementTree(elementChildren, world, host)
+    if let elementChildren = storable.children(of: element.elementID) {
+        return buildDisplayElementTree(elementChildren, storable, host)
     }
 }
 
@@ -97,14 +85,14 @@ func buildDisplayElementTree(_ element: Element,
 ///
 /// - Note: This function derives into the `buildDisplayElementTree` function to generate the
 ///         display.
-func buildDisplayElementTree(_ elements: OrderedSet<ElementID>,
-                             _ world: World,
-                             _ host: DisplayElement) {
+func buildDisplayElementTree<S: Storable>(_ elements: OrderedSet<ElementID>,
+                                          _ storable: S,
+                                          _ host: DisplayElement) {
     // Iterate over each child create and force the render inside a host.
     for child in elements {
         // Look for the element in the world.
-        guard let child: Element = world.elements[child] else { continue }
+        guard let child: Element = storable.element(for: child) else { continue }
         // Build the display for the element.
-        buildDisplayElementTree(child, world, host)
+        buildDisplayElementTree(child, storable, host)
     }
 }

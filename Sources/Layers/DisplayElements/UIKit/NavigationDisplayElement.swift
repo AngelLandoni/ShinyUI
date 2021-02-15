@@ -55,15 +55,15 @@ final class NavigationDisplayElement: DisplayElement {
 }
 
 extension NavigationElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World, _ host: DisplayElement) {
-        let navigation =
-            world.createDisplayElement(NavigationDisplayElement.self, self)
-    
+    func buildDisplayElementTree<S: Storable>(_ storable: S, _ host: DisplayElement) {
+        let navigation = createDisplayElement(type: NavigationDisplayElement.self,
+                                              for: self,
+                                              in: storable)
         host.submit(navigation)
         navigation.configure()
         
-        let child = getChildElementId(for: elementID, in: world)
-        ShinyUI.buildDisplayElementTree(child, world, navigation)
+        let child = getChildElementId(for: elementID, in: storable)
+        ShinyUI.buildDisplayElementTree(child, storable, navigation)
     }
 }
 

@@ -41,12 +41,13 @@ final class VStackElement: Element {
 // MARK: - TreeElementBuilder
 
 extension VStack: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element: VStackElement = world.createElement(VStackElement.self,
-                                                         self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element: VStackElement = createElement(type: VStackElement.self,
+                                                   with: self,
+                                                   in: storable)
         element.alignment = alignment
         element.spacing = spacing
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

@@ -27,7 +27,7 @@
 /// FIXME: For some reason when the layout is recalculated the display disappears and it is not possible
 /// to see anything.
 extension GeometryReaderElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
         // Create the elements in this specific moment.
         guard let child: Element = contentBuilder?(constraint) else { return }
         // Change flag to true to propagate the correct layout, false to
@@ -35,16 +35,16 @@ extension GeometryReaderElement: Layout {
         #if true
         guard let childFrame = tryLayout(the: child.elementID,
                                          with: constraint,
-                                         in: world) else { return }
+                                         in: storable) else { return }
         #else
         guard let _ = child.tryLayout(constraint, world) else { return }
         #endif
 
-        world.link(child: child, toParent: self)
+        link(child: child, to: self, in: storable)
 
         // For some reason SwiftUI makes the GeometryReader as the size of the
         // constraint.
-        let selfFrame = getFrame(world)
+        let selfFrame = getFrame(storable)
         // Change flag to false to have to correct layout otherwise it will
         // match SwiftUI layout.
         #if true
@@ -56,9 +56,9 @@ extension GeometryReaderElement: Layout {
                                         size: constraint)
         #endif
 
-        setFrame(world, frame: newSelfFrame)
+        setFrame(storable, frame: newSelfFrame)
         shiftPosition(to: child.elementID,
-                      in: world,
+                      in: storable,
                       shift: newSelfFrame.position)
     }
 }

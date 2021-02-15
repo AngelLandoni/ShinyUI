@@ -23,25 +23,26 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension TapGestureModifierElement: Layout, ShiftPropagationStopper {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
 
-        guard let childElement = world.element(for: child) else {
+        guard let childElement = storable.element(for: child) else {
             fatalError(ErrorMessages.elementNotFound)
         }
 
-        let previousChildFrame = world.frame(of: child) ?? .fromOrigin(.zero)
-        world.updateElementFrame(childElement.elementID, previousChildFrame)
-
+        let previousChildFrame = storable.frame(of: child) ?? .fromOrigin(.zero)
+        storable.updateFrame(of: childElement.elementID,
+                             with: previousChildFrame)
+        
         guard let childFrame = tryLayout(the: child,
                                          with: constraint,
-                                         in: world) else {
+                                         in: storable) else {
             return
         }
 
-        var selfFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
         selfFrame.size = childFrame.size
 
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

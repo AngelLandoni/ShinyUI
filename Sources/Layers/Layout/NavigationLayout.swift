@@ -23,17 +23,17 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension NavigationElement: Layout, ShiftPropagationStopper {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
         
         guard let _ = tryLayout(the: child,
                                 with: constraint,
-                                in: world) else {
+                                in: storable) else {
             return
         }
         
-        var selfFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
         selfFrame.size = constraint
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

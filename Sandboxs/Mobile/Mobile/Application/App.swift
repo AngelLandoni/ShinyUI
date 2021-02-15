@@ -33,7 +33,7 @@ struct Counter: View {
         Text("Mobile App ShinyUI \(counter)")
             .font("", 20)
             .color(Color(0xFFFFFF, alpha: 0x00))
-            .foregroundColor(Color(0xFFFFFF))
+            .foregroundColor(Color(0xFFFFFFF))
     }
 }
 
@@ -70,6 +70,5 @@ struct App: View {
                     }
             } .center()
         }
-        .margin(all(20))
     }
 }

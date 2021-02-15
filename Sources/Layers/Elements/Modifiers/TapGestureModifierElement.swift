@@ -33,11 +33,12 @@ final class TapGestureModifierElement: Element {
 }
 
 extension TapGestureModifier: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element = world.createElement(TapGestureModifierElement.self,
-                                          self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: TapGestureModifierElement.self,
+                                    with: self,
+                                    in: storable)
         element.action = action
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

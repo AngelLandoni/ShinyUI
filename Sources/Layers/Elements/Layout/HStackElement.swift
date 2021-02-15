@@ -41,15 +41,16 @@ final class HStackElement: Element {
 // MARK: - TreeElementBuilder
 
 extension HStack: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
         // Create a new `VStackElement` and register it in the world.
-        let element: HStackElement = world.createElement(HStackElement.self,
-                                                         self)
+        let element: HStackElement = createElement(type: HStackElement.self,
+                                                   with: self,
+                                                   in: storable)
         element.alignment = alignment
         element.spacing = spacing
 
         // Build element tree for children.
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
 
         return element
     }

@@ -23,37 +23,25 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 protocol TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element
+    func buildElementTree<S: Storable>(_ storable: S) -> Element
 }
 
 // MARK: - Entrypoint
 
-extension World {
-    func generate<V: View>(_ rootView: V) {
-        // Create al the elements in the tree.
-        rootElement = ShinyUI.buildElementTree(rootView, self).elementID
-
-        guard let rootElement = rootElement else {
-            fatalError("Root element must not be nil something when wrong PANIC")
-        }
-
-        // Send the root layout in order to provide layout context.
-        updateElementFrame(rootElement, .fromOrigin(screenSize))
-    }
+func generate<V: View, S: Storable>(rootView: V, in storable: S) {
+    let rootElement = ShinyUI.buildElementTree(rootView, storable).elementID
+    storable.updateRoot(with: rootElement)
+    storable.updateFrame(of: rootElement, with: .fromOrigin(storable.constraint))
 }
 
 // MARK: - Main builder
 
-extension World {
-    /// Creates a new element using the type.
-    ///
-    /// - parameter elementType: The type of the element to be created.
-    func createElement<T: Element, V: View>(_ elementType: T.Type,
-                                            _ view: V) -> T {
-        let element: T = elementType.init(ElementID.random())
-        register(element, representedBy: view)
-        return element
-    }
+func createElement<T: Element, V: View, S: Storable>(type: T.Type,
+                                                     with view: V,
+                                                     in storable: S) -> T {
+    let element: T = type.init(ElementID.random())
+    register(element: element, representedBy: view, in: storable)
+    return element
 }
 
 /// Generates a new element from a view.
@@ -64,22 +52,28 @@ extension World {
 ///
 /// - Note: This method should not be used to generate the root node, instead use `generate`.
 ///         otherwise the rootElement will not be set in the world.
-func buildElementTree<V: View>(_ view: V, _ world: World) -> Element {
+func buildElementTree<V: View, S: Storable>(_ view: V,
+                                            _ storable: S) -> Element {
     // Check if the view is a `TreeElementBuilder` in that case create a
     // element using the method buildElementTree. This chunk if important
     // if it fail it will redirect the flow directly to the child so we can
     // still have custom `View`s comming from user land and avoid force them
     // to implement `TreeElementBuilder`.
     if let elementBuilder = view as? TreeElementBuilder {
-        return elementBuilder.buildElementTree(world)
+        return elementBuilder.buildElementTree(storable)
     }
 
-    let element: Element = buildElementTreeAndCheckStateReadAccess(view,
-                                                                   world: world)
+    let element: Element = buildElementTreeAndCheckStateReadAccess(
+        view,
+        storable: storable
+    )
 
     // Wrap the body into a custom element.
-    let customElement = world.createElement(CustomElement.self, view)
-    world.link(child: element, toParent: customElement)
+    let customElement = createElement(type: CustomElement.self,
+                                      with: view,
+                                      in: storable)
+
+    link(child: element, to: customElement, in: storable)
 
     return customElement
 }
@@ -94,14 +88,14 @@ func buildElementTree<V: View>(_ view: V, _ world: World) -> Element {
 /// - Note: This method should not be used to generate the root node, instead use `generate`.
 ///         otherwise the rootElement will not be set in the world.
 @discardableResult
-func buildElementTree<V: View>(_ view: V,
+func buildElementTree<V: View, S: Storable>(_ view: V,
                                linkedTo parent: Element,
-                               world: World) -> Element {
+                               storable: S) -> Element {
     let element: Element
 
     defer {
-        world.register(element, representedBy: view)
-        world.link(child: element, toParent: parent)
+        register(element: element, representedBy: view, in: storable)
+        link(child: element, to: parent, in: storable)
     }
 
     // Check if the view is a `TreeElementBuilder` in that case create a
@@ -111,7 +105,7 @@ func buildElementTree<V: View>(_ view: V,
     // to implement `TreeElementBuilder`.
     if let elementBuilder = view as? TreeElementBuilder {
         // Request the element.
-        element = elementBuilder.buildElementTree(world)
+        element = elementBuilder.buildElementTree(storable)
         return element
     }
 
@@ -120,19 +114,18 @@ func buildElementTree<V: View>(_ view: V,
 
     // If the view is not of that type it has to walk it to find the next
     // element buildable view.
-    element = buildElementTree(view, world)
-
+    element = buildElementTree(view, storable)
+    
     return element
 }
 
-private func
-buildElementTreeAndCheckStateReadAccess<V: View>(_ view: V,
-                                                 world: World) -> Element {
+private func buildElementTreeAndCheckStateReadAccess<V: View, S: Storable>(
+    _ view: V, storable: S) -> Element {
     // Reset the state invalidation.
     // After a view is recreated read the states must be reseted so we know
     // if the body is reading any property.
     resetViewStateInvalidation(view)
-
+    
     // Check if the invalidation should be performed, if there is a read diff
     // before and after the body is called it means the state is in use
     // so the `shouldInvalidate` must be turned activated.
@@ -144,7 +137,7 @@ buildElementTreeAndCheckStateReadAccess<V: View>(_ view: V,
 
     // If the view is not of that type it has to walk it to find the next
     // element buildable view.
-    let element: Element = buildElementTree(view.body, world)
+    let element: Element = buildElementTree(view.body, storable)
 
     properties.bodyStopReading()
 
@@ -159,105 +152,79 @@ buildElementTreeAndCheckStateReadAccess<V: View>(_ view: V,
 
 /// Avoiding runtime magic.
 
-func buildElementTree<V1: View, V2: View>(_ view: Storage2<V1, V2>,
-                                          _ world: World) -> Element {
+func
+buildElementTree<V1: View, V2: View, S: Storable>(_ view: Storage2<V1, V2>,
+                                                  _ storable: S) -> Element {
     // Create needed elements.
     let storageElement = StorageElement(ElementID.random())
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
     // Link parent with children.
-    world.link(children: [eA, eB], toParent: storageElement)
-
+    link(children: [eA, eB], to: storageElement, in: storable)
+    
     // Return the storage element.
     return storageElement
 }
 
-func buildElementTree<V1: View, V2: View, V3: View>(
-    _ view: Storage3<V1, V2, V3>, _ world: World) -> Element {
+func buildElementTree<V1: View, V2: View, V3: View, S: Storable>(
+    _ view: Storage3<V1, V2, V3>, _ storable: S) -> Element {
     // Create parent element which will be the reference for the children.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
     // Link parent with children.
-    world.link(children: [eA, eB, eC], toParent: storageElement)
+    link(children: [eA, eB, eC], to: storageElement, in: storable)
 
     // Return the storage element.
     return storageElement
 }
 
-func buildElementTree<V1: View, V2: View, V3: View, V4: View>(
-    _ view: Storage4<V1, V2, V3, V4>, _ world: World) -> Element {
+func buildElementTree<V1: View, V2: View, V3: View, V4: View, S: Storable>(
+    _ view: Storage4<V1, V2, V3, V4>, _ storable: S) -> Element {
     // Create parent element.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
     // Link parent with children.
-    world.link(children: [eA, eB, eC, eD], toParent: storageElement)
+    link(children: [eA, eB, eC, eD], to: storageElement, in: storable)
 
     // Return the storage element.
     return storageElement
 }
 
-func buildElementTree<V1: View, V2: View, V3: View, V4: View, V5: View>(
-    _ view: Storage5<V1, V2, V3, V4, V5>, _ world: World) -> Element {
+func buildElementTree<V1: View, V2: View, V3: View, V4: View, V5: View, S: Storable>(
+    _ view: Storage5<V1, V2, V3, V4, V5>, _ storable: S) -> Element {
     // Create parent element.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
-    let eE = ShinyUI.buildElementTree(view.e, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
+    let eE = ShinyUI.buildElementTree(view.e, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
     // Link parent with children.
-    world.link(children: [eA, eB, eC, eD, eE], toParent: storageElement)
-
-    return storageElement
-}
-
-func buildElementTree<V1: View,
-                      V2: View,
-                      V3: View,
-                      V4: View,
-                      V5: View,
-                      V6: View>(
-    _ view: Storage6<V1, V2, V3, V4, V5, V6>, _ world: World) -> Element {
-    // Create parent element.
-    let storageElement = StorageElement(ElementID.random())
-    // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
-    let eE = ShinyUI.buildElementTree(view.e, world)
-    let eF = ShinyUI.buildElementTree(view.f, world)
-
-    // Register them in the world.
-    world.register(storageElement, representedBy: view)
-
-    // Link parent with children.
-    world.link(children: [eA, eB, eC, eD, eE, eF],
-               toParent: storageElement)
+    link(children: [eA, eB, eC, eD, eE], to: storageElement, in: storable)
 
     return storageElement
 }
@@ -268,26 +235,23 @@ func buildElementTree<V1: View,
                       V4: View,
                       V5: View,
                       V6: View,
-                      V7: View>(
-    _ view: Storage7<V1, V2, V3, V4, V5, V6, V7>,
-    _ world: World) -> Element {
+                      S: Storable>(
+    _ view: Storage6<V1, V2, V3, V4, V5, V6>, _ storable: S) -> Element {
     // Create parent element.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
-    let eE = ShinyUI.buildElementTree(view.e, world)
-    let eF = ShinyUI.buildElementTree(view.f, world)
-    let eG = ShinyUI.buildElementTree(view.g, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
+    let eE = ShinyUI.buildElementTree(view.e, storable)
+    let eF = ShinyUI.buildElementTree(view.f, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
     // Link parent with children.
-    world.link(children: [eA, eB, eC, eD, eE, eF, eG],
-               toParent: storageElement)
+    link(children: [eA, eB, eC, eD, eE, eF], to: storageElement, in: storable)
 
     return storageElement
 }
@@ -299,27 +263,28 @@ func buildElementTree<V1: View,
                       V5: View,
                       V6: View,
                       V7: View,
-                      V8: View>(
-    _ view: Storage8<V1, V2, V3, V4, V5, V6, V7, V8>,
-    _ world: World) -> Element {
+                      S: Storable>(
+    _ view: Storage7<V1, V2, V3, V4, V5, V6, V7>,
+    _ storable: S) -> Element {
     // Create parent element.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
-    let eE = ShinyUI.buildElementTree(view.e, world)
-    let eF = ShinyUI.buildElementTree(view.f, world)
-    let eG = ShinyUI.buildElementTree(view.g, world)
-    let eH = ShinyUI.buildElementTree(view.h, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
+    let eE = ShinyUI.buildElementTree(view.e, storable)
+    let eF = ShinyUI.buildElementTree(view.f, storable)
+    let eG = ShinyUI.buildElementTree(view.g, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
-    world.link(children: [eA, eB, eC, eD, eE, eF, eG, eH],
-               toParent: storageElement)
-
+    // Link parent with children.
+    link(children: [eA, eB, eC, eD, eE, eF, eG],
+         to: storageElement,
+         in: storable)
+    
     return storageElement
 }
 
@@ -331,27 +296,27 @@ func buildElementTree<V1: View,
                       V6: View,
                       V7: View,
                       V8: View,
-                      V9: View>(
-    _ view: Storage9<V1, V2, V3, V4, V5, V6, V7, V8, V9>,
-    _ world: World) -> Element {
+                      S: Storable>(
+    _ view: Storage8<V1, V2, V3, V4, V5, V6, V7, V8>,
+    _ storable: S) -> Element {
     // Create parent element.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
-    let eE = ShinyUI.buildElementTree(view.e, world)
-    let eF = ShinyUI.buildElementTree(view.f, world)
-    let eG = ShinyUI.buildElementTree(view.g, world)
-    let eH = ShinyUI.buildElementTree(view.h, world)
-    let eI = ShinyUI.buildElementTree(view.i, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
+    let eE = ShinyUI.buildElementTree(view.e, storable)
+    let eF = ShinyUI.buildElementTree(view.f, storable)
+    let eG = ShinyUI.buildElementTree(view.g, storable)
+    let eH = ShinyUI.buildElementTree(view.h, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
-
-    world.link(children: [eA, eB, eC, eD, eE, eF, eG, eH, eI],
-               toParent: storageElement)
+    register(element: storageElement, representedBy: view, in: storable)
+    
+    link(children: [eA, eB, eC, eD, eE, eF, eG, eH],
+         to: storageElement,
+         in: storable)
 
     return storageElement
 }
@@ -365,28 +330,65 @@ func buildElementTree<V1: View,
                       V7: View,
                       V8: View,
                       V9: View,
-                      V10: View>(
-    _ view: Storage10<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10>,
-    _ world: World) -> Element {
+                      S: Storable>(
+    _ view: Storage9<V1, V2, V3, V4, V5, V6, V7, V8, V9>,
+    _ storable: S) -> Element {
     // Create parent element.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
-    let eA = ShinyUI.buildElementTree(view.a, world)
-    let eB = ShinyUI.buildElementTree(view.b, world)
-    let eC = ShinyUI.buildElementTree(view.c, world)
-    let eD = ShinyUI.buildElementTree(view.d, world)
-    let eE = ShinyUI.buildElementTree(view.e, world)
-    let eF = ShinyUI.buildElementTree(view.f, world)
-    let eG = ShinyUI.buildElementTree(view.g, world)
-    let eH = ShinyUI.buildElementTree(view.h, world)
-    let eI = ShinyUI.buildElementTree(view.i, world)
-    let eJ = ShinyUI.buildElementTree(view.j, world)
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
+    let eE = ShinyUI.buildElementTree(view.e, storable)
+    let eF = ShinyUI.buildElementTree(view.f, storable)
+    let eG = ShinyUI.buildElementTree(view.g, storable)
+    let eH = ShinyUI.buildElementTree(view.h, storable)
+    let eI = ShinyUI.buildElementTree(view.i, storable)
 
     // Register them in the world.
-    world.register(storageElement, representedBy: view)
+    register(element: storageElement, representedBy: view, in: storable)
 
-    world.link(children: [eA, eB, eC, eD, eE, eF, eG, eH, eI, eJ],
-               toParent: storageElement)
+    link(children: [eA, eB, eC, eD, eE, eF, eG, eH, eI],
+         to: storageElement,
+         in: storable)
+
+    return storageElement
+}
+
+func buildElementTree<V1: View,
+                      V2: View,
+                      V3: View,
+                      V4: View,
+                      V5: View,
+                      V6: View,
+                      V7: View,
+                      V8: View,
+                      V9: View,
+                      V10: View,
+                      S: Storable>(
+    _ view: Storage10<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10>,
+    _ storable: S) -> Element {
+    // Create parent element.
+    let storageElement = StorageElement(ElementID.random())
+    // Create children elements.
+    let eA = ShinyUI.buildElementTree(view.a, storable)
+    let eB = ShinyUI.buildElementTree(view.b, storable)
+    let eC = ShinyUI.buildElementTree(view.c, storable)
+    let eD = ShinyUI.buildElementTree(view.d, storable)
+    let eE = ShinyUI.buildElementTree(view.e, storable)
+    let eF = ShinyUI.buildElementTree(view.f, storable)
+    let eG = ShinyUI.buildElementTree(view.g, storable)
+    let eH = ShinyUI.buildElementTree(view.h, storable)
+    let eI = ShinyUI.buildElementTree(view.i, storable)
+    let eJ = ShinyUI.buildElementTree(view.j, storable)
+
+    // Register them in the world.
+    register(element: storageElement, representedBy: view, in: storable)
+    
+    link(children: [eA, eB, eC, eD, eE, eF, eG, eH, eI, eJ],
+         to: storageElement,
+         in: storable)
 
     return storageElement
 }

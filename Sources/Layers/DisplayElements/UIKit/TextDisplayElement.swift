@@ -50,10 +50,12 @@ private final class TextDisplayElement: DisplayElement {
 }
 
 extension TextElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World, _ host: DisplayElement) {
-        let displayText = world.createDisplayElement(TextDisplayElement.self,
-                                                     self)
-        if let frame = getFrame(world) {
+    func buildDisplayElementTree<S: Storable>(_ storable: S, _ host: DisplayElement) {
+        let displayText = createDisplayElement(type: TextDisplayElement.self,
+                                               for: self,
+                                               in: storable)
+        
+        if let frame = getFrame(storable) {
             displayText.updateFrame(frame)
         }
 

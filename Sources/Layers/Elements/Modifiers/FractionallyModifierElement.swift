@@ -36,12 +36,13 @@ final class FractionallyFrameModifierElement: Element {
 // MARK: - TreeElementBuilder
 
 extension FractionallyFrameModifier: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element = world.createElement(FractionallyFrameModifierElement.self,
-                                          self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: FractionallyFrameModifierElement.self,
+                                    with: self,
+                                    in: storable)
         element.width = width
         element.height = height
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

@@ -38,8 +38,10 @@ final class MarginModifierElement: Element {
 // MARK: - TreeElementBuilder
 
 extension MarginModifier: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element = world.createElement(MarginModifierElement.self, self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: MarginModifierElement.self,
+                                    with: self,
+                                    in: storable)
 
         for side in sides {
             switch side {
@@ -67,7 +69,7 @@ extension MarginModifier: TreeElementBuilder {
             }
         }
 
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

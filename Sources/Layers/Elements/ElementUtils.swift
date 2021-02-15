@@ -31,9 +31,9 @@
 ///     - in: The element source.
 ///
 /// - TODO: Find a better file for this function.
-func getChildElementId(for elementID: ElementID,
-                       in world: World) -> ElementID {
-    guard let children = world.children(of: elementID) else {
+func getChildElementId<S: Storable>(for elementID: ElementID,
+                                    in storable: S) -> ElementID {
+    guard let children = storable.children(of: elementID) else {
         fatalError(ErrorMessages.doesNotContainAnyChildren)
     }
     precondition(children.count == 1, ErrorMessages.shouldHaveOnlyOneChild)

@@ -54,11 +54,12 @@ private final class DecorationBoxDisplayElement: DisplayElement {
 }
 
 extension DecorationBoxElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World, _ host: DisplayElement) {
-        let display
-            = world.createDisplayElement(DecorationBoxDisplayElement.self, self)
+    func buildDisplayElementTree<S: Storable>(_ storable: S, _ host: DisplayElement) {
+        let display = createDisplayElement(type: DecorationBoxDisplayElement.self,
+                                           for: self,
+                                           in: storable)
 
-        if let frame = getFrame(world) {
+        if let frame = getFrame(storable) {
             display.updateFrame(frame)
         }
 
@@ -93,8 +94,8 @@ extension DecorationBoxElement: TreeDisplayElementBuilder {
 
         host.submit(display)
 
-        let child = getChildElementId(for: elementID, in: world)
-        ShinyUI.buildDisplayElementTree(child, world, display)
+        let child = getChildElementId(for: elementID, in: storable)
+        ShinyUI.buildDisplayElementTree(child, storable, display)
     }
 }
 

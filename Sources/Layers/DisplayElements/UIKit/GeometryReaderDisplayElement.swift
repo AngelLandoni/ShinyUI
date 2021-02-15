@@ -23,14 +23,15 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension GeometryReaderElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World, _ host: DisplayElement) {
-        guard let elements = world.children(of: elementID) else { return }
+    func buildDisplayElementTree<S: Storable>(_ storable: S,
+                                              _ host: DisplayElement) {
+        guard let elements = storable.children(of: elementID) else { return }
         guard let child = elements.first, elements.count == 1 else {
             fatalError(ErrorMessages.geometryReaderChildrenMismatch)
         }
-        guard let childElement = world.element(for: child) else {
+        guard let childElement = storable.element(for: child) else {
             fatalError(ErrorMessages.elementDoesNotContainChild)
         }
-        ShinyUI.buildDisplayElementTree(childElement, world, host)
+        ShinyUI.buildDisplayElementTree(childElement, storable, host)
     }
 }

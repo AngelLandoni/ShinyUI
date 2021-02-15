@@ -23,22 +23,22 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension FrameModifierElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
 
         let childConstraint = Size(width: width ?? constraint.width,
                                    height: height ?? constraint.height)
 
         guard let childFrame = tryLayout(the: child,
                                          with: childConstraint,
-                                         in: world) else {
+                                         in: storable) else {
             fatalError(ErrorMessages.childCannotBeMeasured)
         }
 
-        var selfFrame: ElementFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame: ElementFrame = getFrame(storable) ?? .fromOrigin(.zero)
         selfFrame.size = Size(width: width ?? childFrame.size.width,
                               height: height ?? childFrame.size.height)
-        world.updateElementFrame(child, selfFrame)
-        setFrame(world, frame: selfFrame)
+        storable.updateFrame(of: child, with: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

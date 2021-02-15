@@ -24,19 +24,18 @@
 
 struct OwnerEntry {
     private let owner: Element
-    /// Contains a referece to the world, should this be just a simple pointer?, or unowned?
-    private weak var world: World?
+    private var storable: Storable?
 
-    init(_ owner: Element, _ world: World) {
+    init(_ owner: Element, _ storable: Storable) {
         self.owner = owner
-        self.world = world
+        self.storable = storable
     }
 
     func invalidate() {
-        guard let world = world else {
+        guard let storable = storable else {
             fatalError("Element \(owner) can not be invalidated due world")
         }
-        world.markAsInvalid(owner.elementID)
+        storable.markAsInvalid(owner.elementID)
     }
 }
 

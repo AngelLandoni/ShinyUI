@@ -24,7 +24,7 @@
 
 extension HStackElement: Layout {
     /// HStack is backed by a sorage element so we have to get the elements from there.
-    func layout(_ constraint: Size<Float>, _ world: World) {
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
         var spacers: Set<Int> = []
         // The width that the elements need to be rendered.
         var remainingSpace: Float = constraint.width
@@ -33,13 +33,13 @@ extension HStackElement: Layout {
         var maxHeight: Float = 0
 
         // Check if the only child is the storage, it contains the children.
-        guard let storageElementID = world.children(of: elementID)?.first else {
+        guard let storageElementID = storable.children(of: elementID)?.first else {
             fatalError("VStack must contains a only child the StorageElement")
         }
         // Extract children id, no children nothing to calculate.
         // The stack contains always only one child a StorageElement the
         // children should be extracted from there.
-        guard let children = world.children(of: storageElementID) else {
+        guard let children = storable.children(of: storageElementID) else {
             fatalError("VStack does not contain any children to layout")
         }
 
@@ -47,7 +47,7 @@ extension HStackElement: Layout {
 
         // Calculate the size for each element.
         for (index, elementID) in children.enumerated() {
-            guard let childElement: Element = world.element(for: elementID)
+            guard let childElement: Element = storable.element(for: elementID)
                 else { continue }
 
             defer { childElements.append(childElement) }
@@ -65,14 +65,14 @@ extension HStackElement: Layout {
 
             guard let childFrame = tryLayout(the: elementID,
                                              with: childConstraint,
-                                             in: world) else { continue }
+                                             in: storable) else { continue }
 
             maxHeight = max(childFrame.size.height, maxHeight)
             remainingSpace -= childFrame.size.width
         }
 
         let spacerWidth: Float = remainingSpace / Float(spacers.count)
-        let selfFrame: ElementFrame = getFrame(world) ?? .fromOrigin(.zero)
+        let selfFrame: ElementFrame = getFrame(storable) ?? .fromOrigin(.zero)
 
         // Contains the next position that the child should take.
         // This is changed based on the previous child width, margins and spacers.
@@ -84,7 +84,7 @@ extension HStackElement: Layout {
                 continue
             }
 
-            guard let childFrame: ElementFrame = childElement.getFrame(world)
+            guard let childFrame: ElementFrame = childElement.getFrame(storable)
                 else { continue }
 
             let yOffset: Float
@@ -102,7 +102,7 @@ extension HStackElement: Layout {
             let deltaY = yOffset - childFrame.position.y
 
             shiftPosition(to: childElement.elementID,
-                          in: world,
+                          in: storable,
                           shift: Point(x: deltaX,
                                        y: deltaY + selfFrame.position.y))
 
@@ -111,7 +111,7 @@ extension HStackElement: Layout {
 
         // Finally self update the size with the correct one after layout
         // all the children.
-        var currentStackFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var currentStackFrame = getFrame(storable) ?? .fromOrigin(.zero)
 
         // Subtract parent position offset to get the real size of the stack.
         let stackWidth: Float = targetXOffsetForChild - selfFrame.position.x
@@ -119,6 +119,6 @@ extension HStackElement: Layout {
 
         currentStackFrame.size = Size(width: stackWidth, height: stackHeight)
 
-        setFrame(world, frame: currentStackFrame)
+        setFrame(storable, frame: currentStackFrame)
     }
 }

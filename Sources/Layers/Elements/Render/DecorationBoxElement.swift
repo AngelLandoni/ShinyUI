@@ -18,10 +18,12 @@ final class DecorationBoxElement: Element {
 // MARK: - TreeElementBuilder
 
 extension DecorationBox: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element = world.createElement(DecorationBoxElement.self, self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: DecorationBoxElement.self,
+                                    with: self,
+                                    in: storable)
         element.decorations = decorations
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

@@ -32,18 +32,18 @@
 ///     - in: The element source.
 ///     - shift: The value used to shift the `Element`.
 ///
-func shiftPosition(to elementID: ElementID,
-                   in world: World,
+func shiftPosition<S: Storable>(to elementID: ElementID,
+                   in storable: S,
                    shift: Point<Float>) {
     // Shift the root.
-    if var currentElementFrame: ElementFrame = world.frame(of: elementID) {
+    if var currentElementFrame: ElementFrame = storable.frame(of: elementID) {
         currentElementFrame.position.x += shift.x
         currentElementFrame.position.y += shift.y
         // Force update the element frame.
-        world.updateElementFrame(elementID, currentElementFrame)
+        storable.updateFrame(of: elementID, with: currentElementFrame)
     }
 
-    guard let element = world.element(for: elementID) else {
+    guard let element = storable.element(for: elementID) else {
         // TBD: In case of an OptionalElement (if statement) the should the
         // elementId be deleted from the parent?
         // fatalError(ErrorMessages.elementNotFound)
@@ -54,11 +54,11 @@ func shiftPosition(to elementID: ElementID,
     guard !(element is ShiftPropagationStopper) else { return }
 
     // Shift the children.
-    guard let children: OrderedSet<ElementID> = world.children(of: elementID)
+    guard let children: OrderedSet<ElementID> = storable.children(of: elementID)
         else { return }
 
     for child in children {
-        shiftPosition(to: child, in: world, shift: shift)
+        shiftPosition(to: child, in: storable, shift: shift)
     }
 }
 
@@ -70,15 +70,29 @@ func shiftPosition(to elementID: ElementID,
 ///     - in: The element source.
 ///
 @discardableResult
-func tryLayout(the elementID: ElementID,
-               with constraint: Size<Float>,
-               in world: World) -> ElementFrame? {
-    guard world.element(for: elementID) != nil
-        else { fatalError(ErrorMessages.elementNotFound) }
-
-    let element = world.element(for: elementID)
+func tryLayout<S: Storable>(the elementID: ElementID,
+                            with constraint: Size<Float>,
+                            in storable: S) -> ElementFrame? {
+    guard storable.element(for: elementID) != nil
+    else { fatalError(ErrorMessages.elementNotFound) }
+    
+    let element = storable.element(for: elementID)
     guard let layoutElement = element as? Layout else { return nil }
+    
+    layoutElement.layout(constraint, storable)
+    return storable.frame(of: elementID)
+}
 
-    layoutElement.layout(constraint, world)
-    return world.frame(of: elementID)
+/// Measure the provided `Element` using the `ElementID`.
+///
+/// - Parameters:
+///     - element: The `ElementID` to be measured.
+///     - in: The Word data source.
+///
+func layout<S: Storable>(element: ElementID, in storable: S) {
+    guard let element = storable.element(for: element) else {
+        fatalError(ErrorMessages.elementNotFound)
+    }
+    guard let layoutElement = element as? Layout else { return }
+    layoutElement.layout(storable.constraint, storable)
 }

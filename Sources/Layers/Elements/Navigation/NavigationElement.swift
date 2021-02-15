@@ -33,9 +33,11 @@ final class NavigationElement: LeafElement {
 // MARK: TreeElementBuilder
 
 extension Navigation: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element = world.createElement(NavigationElement.self, self)
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: NavigationElement.self,
+                                    with: self,
+                                    in: storable)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

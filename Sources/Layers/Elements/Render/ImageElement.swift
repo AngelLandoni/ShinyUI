@@ -19,8 +19,10 @@ final class ImageElement: LeafElement {
 // MARK: TreeElementBuilder
 
 extension Image: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element: ImageElement = world.createElement(ImageElement.self, self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: ImageElement.self,
+                                    with: self,
+                                    in: storable)
         element.path = path
         element.fit = fit
         return element

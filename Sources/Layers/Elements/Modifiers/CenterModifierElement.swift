@@ -39,14 +39,15 @@ final class CenterModifierElement: Element {
 // MARK: - TreeElementBuilder
 
 extension CenterModifier: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
         // Create a new `VStackElement` and register it in the world.
-        let element: CenterModifierElement =
-            world.createElement(CenterModifierElement.self, self)
-
+        let element = createElement(type: CenterModifierElement.self,
+                                    with: self,
+                                    in: storable)
+        
         element.direction = direction
         // Build element tree for children.
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
 
         return element
     }

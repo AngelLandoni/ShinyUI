@@ -36,11 +36,13 @@ final class FrameModifierElement: Element {
 // MARK: - TreeElementBuilder
 
 extension FrameModifier: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        let element = world.createElement(FrameModifierElement.self, self)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: FrameModifierElement.self,
+                                    with: self,
+                                    in: storable)
         element.width = width
         element.height = height
-        ShinyUI.buildElementTree(body, linkedTo: element, world: world)
+        ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }
 }

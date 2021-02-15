@@ -24,39 +24,44 @@
 
 #if DEBUG
 
-private var treeDeepPrint: Int = 0
+private var treeDepthPrint: Int = 0
 
 /// Ugly code but works, this is only for testing purposes.
 extension World {
     func printElementTree() {
         assert(rootElement != nil, "Root element must not be nil")
-        print("\(generateTabs(number: treeDeepPrint)) -> \(type(of: elements[rootElement!]!))")
-        printElement(elementID: rootElement!)
-        treeDeepPrint = 0
+        print("\(generateTabs(number: treeDepthPrint)) -> \(type(of: element(for: rootElement!.elementID)!))")
+        printElement(elementID: rootElement!.elementID)
+        treeDepthPrint = 0
     }
 
     func printElement(elementID: ElementID) {
-        treeDeepPrint += 1
+        treeDepthPrint += 1
         children(of: elementID)?.forEach({
-            if let display = displays[$0] {
-                let tabs = generateTabs(number: treeDeepPrint)
-                let elementType = type(of: elements[$0]!)
+            if let display = display(for: $0) {
+                let tabs = generateTabs(number: treeDepthPrint)
+                let elementType = type(of: element(for: $0)!)
                 let displayType = type(of: display)
                 var parentElementR: Element?
-                if let parent = childToParent[$0], let parentElement = elements[parent] {
+                if let parent = parent(of: $0), let parentElement = element(for: parent) {
                     parentElementR = parentElement
                 }
-                print("\(tabs) --> \(elementType) [\(displayType)] {\(parentElementR)}")
+                print("\(tabs) [\($0)] \(elementType) [\(displayType)] {\(parentElementR)}")
             } else {
                 var parentElementR: Element?
-                if let parent = childToParent[$0], let parentElement = elements[parent] {
+                if let parent = parent(of: $0), let parentElement = element(for: parent) {
                     parentElementR = parentElement
                 }
-                print("\(generateTabs(number: treeDeepPrint)) --> \(type(of: elements[$0]!)) {\(parentElementR)}")
+                if let e = element(for: $0) {
+                    print("\(generateTabs(number: treeDepthPrint)) [\($0)] \(type(of: e)) {\(parentElementR)}")
+                } else {
+                    print("\(generateTabs(number: treeDepthPrint)) [\($0)] NIL {\(parentElementR)}")
+                }
+                
             }
             printElement(elementID: $0)
         })
-        treeDeepPrint -= 1
+        treeDepthPrint -= 1
     }
 
     func generateTabs(number: Int) -> String {

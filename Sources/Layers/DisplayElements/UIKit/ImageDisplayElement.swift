@@ -49,9 +49,10 @@ private final class ImageDisplayElement: DisplayElement {
 }
 
 extension ImageElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World, _ host: DisplayElement) {
-        let displayImage = world.createDisplayElement(ImageDisplayElement.self,
-                                                      self)
+    func buildDisplayElementTree<S: Storable>(_ storable: S, _ host: DisplayElement) {
+        let displayImage = createDisplayElement(type: ImageDisplayElement.self,
+                                                for: self,
+                                                in: storable)
         displayImage.view.image = UIImage(named: path)
         host.submit(displayImage)
     }

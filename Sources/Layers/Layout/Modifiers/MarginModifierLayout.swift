@@ -23,17 +23,17 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension MarginModifierElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
 
         let childConstraint = Size(width: constraint.width - left - right,
                                    height: constraint.height + bottom + top)
 
-        var selfFrame: ElementFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame: ElementFrame = getFrame(storable) ?? .fromOrigin(.zero)
 
         guard let childFrame = tryLayout(the: child,
                                          with: childConstraint,
-                                         in: world) else {
+                                         in: storable) else {
             return
         }
 
@@ -45,9 +45,9 @@ extension MarginModifierElement: Layout {
 
         // Update the child frame with the new one.
         shiftPosition(to: child,
-                      in: world,
+                      in: storable,
                       shift: Point(x: deltaX, y: deltaY))
 
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

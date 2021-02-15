@@ -26,9 +26,9 @@
 import UIKit
 
 extension TextElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
 
-        var selfFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
 
         // Calculates the text width, if the constraint width is bigger than
         // the required width the size will be set to that specific width
@@ -48,7 +48,7 @@ extension TextElement: Layout {
 
             selfFrame.size = Size(width: unboundedWidth, height: boundedHeight)
             // Submit the size.
-            setFrame(world, frame: selfFrame)
+            setFrame(storable, frame: selfFrame)
             return
         }
 
@@ -61,7 +61,7 @@ extension TextElement: Layout {
         selfFrame.size = Size(width: constraint.width, height: boundedHeight)
 
         // Sets a new frame for the text.
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }
 

@@ -28,9 +28,9 @@
 /// - Note: SwiftUI uses this in the same way and Flutter use the setState, not sure which is better
 ///         from usability perspective.
 /// - TODO: Try to avoid Mirror and use directly the metadata.
-func updateViewStateOwner<V: View>(_ view: V,
-                                   newOwner owner: Element,
-                                   world: World) {
+func updateViewStateOwner<V: View, S: Storable>(_ view: V,
+                                                newOwner owner: Element,
+                                                in storable: S) {
     // Iterate over each variable to get the dynamic properties,
     // and when ever some of them changes the context should know
     // and store the id if it to recalculate layout or redraw.
@@ -42,13 +42,13 @@ func updateViewStateOwner<V: View>(_ view: V,
         // address and the rest of the struct but the content of the pointer
         // is shared (Maybe instead of use `Ref` we can use a simple pointer
         // to avoid retain release).
-        dynProp.owner.content = OwnerEntry(owner, world)
+        dynProp.owner.content = OwnerEntry(owner, storable)
     }
 }
 
-func updateViewStateOwner(_ view: AnyView,
+/*func updateViewStateOwner(_ view: AnyView,
                           newOwner owner: ElementID,
                           world: World) {
     // TODO: Figure it out how Swift Runtime works, this function is not needed
     // now but will be very helpful in the future.
-}
+}*/

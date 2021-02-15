@@ -61,16 +61,17 @@ final class TapGestureDisplayElement: DisplayElement {
 }
 
 extension TapGestureModifierElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree(_ world: World, _ host: DisplayElement) {
-        let display = world.createDisplayElement(TapGestureDisplayElement.self,
-                                                 self)
+    func buildDisplayElementTree<S: Storable>(_ storable: S, _ host: DisplayElement) {
+        let display = createDisplayElement(type: TapGestureDisplayElement.self,
+                                           for: self,
+                                           in: storable)
         host.submit(display)
         
         display.onTap = action
         display.configure()
         
-        let child = getChildElementId(for: elementID, in: world)
-        ShinyUI.buildDisplayElementTree(child, world, display)
+        let child = getChildElementId(for: elementID, in: storable)
+        ShinyUI.buildDisplayElementTree(child, storable, display)
     }
 }
 

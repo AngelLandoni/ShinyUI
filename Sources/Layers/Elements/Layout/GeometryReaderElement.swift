@@ -36,17 +36,16 @@ extension GeometryReader: TreeElementBuilder {
     /// TODO: Change creation way avoid the element generate a unique entity
     /// which carries an enum with payload.
     /// let elementID = world.createElement(ofType: .geometryReader(size))
-    func buildElementTree(_ world: World) -> Element {
-        let element: GeometryReaderElement = world.createElement(
-            GeometryReaderElement.self, self)
-
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        let element = createElement(type: GeometryReaderElement.self,
+                                    with: self,
+                                    in: storable)
         // Inverse the order, when the layout finish the calculation force
         // the creation of the child element only at that point it knows the
         // geometry.
         element.contentBuilder = { size in
-            ShinyUI.buildElementTree(content(size), world)
+            ShinyUI.buildElementTree(content(size), storable)
         }
-
         // The body must not be generated, that will be generated after layout.
         return element
     }

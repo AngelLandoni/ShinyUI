@@ -36,55 +36,55 @@ final class StorageElement: Element {
 }
 
 extension Storage2: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage3: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage4: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage5: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage6: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage7: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage8: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage9: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }
 
 extension Storage10: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
-        ShinyUI.buildElementTree(self, world)
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
+        ShinyUI.buildElementTree(self, storable)
     }
 }

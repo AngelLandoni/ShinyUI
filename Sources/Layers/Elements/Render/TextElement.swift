@@ -23,7 +23,7 @@ final class TextElement: LeafElement {
 // MARK: TreeElementBuilder
 
 extension Text: TreeElementBuilder {
-    func buildElementTree(_ world: World) -> Element {
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
         var color: Color = Color(0xFFFFFF)
         var foregroundColor: Color = Color(0x000000)
         var fontSize: Float = 17
@@ -44,7 +44,9 @@ extension Text: TreeElementBuilder {
 
         // TODO: Instead of register the element inside the create element
         // to that inside the element tree builder.
-        let element: TextElement = world.createElement(TextElement.self, self)
+        let element: TextElement = createElement(type: TextElement.self,
+                                                 with: self,
+                                                 in: storable)
         element.text = title
         element.color = color
         element.fontSize = fontSize

@@ -55,16 +55,16 @@ extension Element {
     ///
     /// - Parameter world: The world which contains the information.
     /// - Returns: Maybe the 'Element''s frame or maybe not (Nil).
-    func getFrame(_ world: World) -> ElementFrame? {
+    func getFrame<S: Storable>(_ storable: S) -> ElementFrame? {
         guard self is Layout else { return nil }
-        return world.frames[elementID]
+        return storable.frame(of: elementID)
     }
 
     /// Sets the new frame for the element in the provided `World`.
     ///
     /// - Parameter world: The world used to store the information.
-    func setFrame(_ world: World, frame: ElementFrame) {
+    func setFrame<S: Storable>(_ storable: S, frame: ElementFrame) {
         guard self is Layout else { return }
-        world.updateElementFrame(elementID, frame)
+        storable.updateFrame(of: elementID, with: frame)
     }
 }

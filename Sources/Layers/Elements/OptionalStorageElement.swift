@@ -25,12 +25,12 @@
 // MARK: - TreeElementBuilder
 
 extension Optional: TreeElementBuilder where Wrapped: View {
-    func buildElementTree(_ world: World) -> Element {
+    func buildElementTree<S: Storable>(_ storable: S) -> Element {
         switch self {
         case .none:
             return EmptyElement()
         case .some(let view):
-            return ShinyUI.buildElementTree(view, world)
+            return ShinyUI.buildElementTree(view, storable)
         }
     }
 }

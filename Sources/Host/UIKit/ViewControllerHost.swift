@@ -93,7 +93,7 @@ public final class HostController<V: View>: UIViewController {
 
         // Trigger the maintain loop.
         runLoop.action = { [unowned world] in
-            world.maintain()
+            mantain(world: world)
         }
     }
 
@@ -103,13 +103,12 @@ public final class HostController<V: View>: UIViewController {
 
         // TODO: Move this to a background thread.
         // Generate the rootView using the local `World`.
-        world.generate(rootView)
-        world.layout()
-        world.render(temp)
-
-        #if DEBUG
-        world.printElementTree()
-        #endif
+        generate(rootView: rootView, in: world)
+        guard let rootElement = world.rootElement else {
+            fatalError(ErrorMessages.emptyRoot)
+        }
+        layout(element: rootElement.elementID, in: world)
+        render(in: temp, using: world)
     }
 
 
@@ -120,7 +119,10 @@ public final class HostController<V: View>: UIViewController {
     public override func viewWillTransition(to size: CGSize,
                                             with coordinator: Coordinator) {
         world.updateScreenSize(size.asSize)
-        world.layout()
+        guard let rootElement = world.rootElement else {
+            fatalError(ErrorMessages.emptyRoot)
+        }
+        layout(element: rootElement.elementID, in: world)
         world.syncLayoutAndDisplay()
     }
 }

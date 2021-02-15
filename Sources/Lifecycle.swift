@@ -22,19 +22,22 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-final class SpacerElement: Element {
-    var elementID: ElementID
-
-    /// Creates a new instance of `SpacerElement` providing an `ElementID`.
-    init(_ elementID: ElementID) {
-        self.elementID = elementID
-    }
+/// Calls the `didUnmount` method for the associated `View`.
+///
+/// - Parameters:
+///     - for: The `Element` used to find the associated `View`.
+///     - in: The `World` data source.
+func emitUnmountLifecycleEvent<S: Storable>(for element: ElementID,
+                                            in storable: S) {
+    storable.view(for: element)?.didUnmount()
 }
 
-// MARK: - TreeElementBuilder
-
-extension Spacer: TreeElementBuilder {
-    func buildElementTree<S: Storable>(_ storable: S) -> Element {
-        createElement(type: SpacerElement.self, with: self, in: storable)
-    }
+/// Cals the `didMount` method for the associated `View`.
+///
+/// - Parameters:
+///     - for: The `Element` used to find the associated `View`.
+///     - in: The `World` data source.
+func emitMountLifecycleEvent<S: Storable>(for element: ElementID,
+                                          in storable: S) {
+    storable.view(for: element)?.didMount()
 }

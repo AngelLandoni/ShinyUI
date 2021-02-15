@@ -50,6 +50,7 @@ public struct MarginModifier<Content: View>: View {
     /// Contains the content node.
     private let content: Content
 
+    // TBD: Maybe move this to an option set?
     public let sides: [Edge<Float>]
 
     // MARK: Lifecycle

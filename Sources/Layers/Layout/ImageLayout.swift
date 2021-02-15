@@ -23,7 +23,7 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension ImageElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        setFrame(world, frame: .fromOrigin(.zero))
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        setFrame(storable, frame: .fromOrigin(.zero))
     }
 }

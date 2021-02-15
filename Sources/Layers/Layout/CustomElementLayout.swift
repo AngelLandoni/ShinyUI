@@ -23,25 +23,25 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension CustomElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
 
         guard let childFrame = tryLayout(the: child,
                                          with: constraint,
-                                         in: world) else {
+                                         in: storable) else {
             fatalError(ErrorMessages.elementDoesNotHaveFrame)
         }
 
-        var selfFrame: ElementFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame: ElementFrame = getFrame(storable) ?? .fromOrigin(.zero)
         selfFrame.size = childFrame.size
 
         let deltaX = selfFrame.position.x - childFrame.position.x
         let deltaY = selfFrame.position.y - childFrame.position.y
 
         shiftPosition(to: child,
-                      in: world,
+                      in: storable,
                       shift: Point(x: deltaX, y: deltaY))
 
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

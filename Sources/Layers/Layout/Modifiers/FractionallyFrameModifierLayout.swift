@@ -23,8 +23,8 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extension FractionallyFrameModifierElement: Layout {
-    func layout(_ constraint: Size<Float>, _ world: World) {
-        let child = getChildElementId(for: elementID, in: world)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
+        let child = getChildElementId(for: elementID, in: storable)
 
         let fWidth: Float
         let fHeight: Float
@@ -44,18 +44,18 @@ extension FractionallyFrameModifierElement: Layout {
 
         guard let childFrame = tryLayout(the: child,
                                          with: childConstraint,
-                                         in: world) else {
+                                         in: storable) else {
             fatalError(ErrorMessages.childCannotBeMeasured)
         }
 
-        var selfFrame: ElementFrame = getFrame(world) ?? .fromOrigin(.zero)
+        var selfFrame: ElementFrame = getFrame(storable) ?? .fromOrigin(.zero)
 
         let finalWidth: Float = width != nil ? fWidth : childFrame.size.width
         let finalHeight = height != nil ? fHeight : childFrame.size.height
 
         selfFrame.size = Size(width: finalWidth, height: finalHeight)
-        world.updateElementFrame(child, selfFrame)
+        storable.updateFrame(of: child, with: selfFrame)
 
-        setFrame(world, frame: selfFrame)
+        setFrame(storable, frame: selfFrame)
     }
 }

@@ -29,7 +29,7 @@ enum Constraint {
 
 /// The element's layout.
 protocol Layout {
-    func layout(_ constraint: Size<Float>, _ world: World)
+    func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S)
 }
 
 /// Indicates if the layer is a container.
@@ -67,16 +67,3 @@ extension ElementFrame {
         ElementFrame(position: position, size: .zero)
     }
 }
-
-#if canImport(CoreGraphics)
-import CoreGraphics
-
-extension ElementFrame {
-    var asFrame: CGRect {
-        CGRect(x: position.x.cgFloat,
-               y: position.y.cgFloat,
-               width: size.width.cgFloat,
-               height: size.height.cgFloat)
-    }
-}
-#endif

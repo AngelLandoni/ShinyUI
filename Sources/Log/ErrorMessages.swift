@@ -46,4 +46,8 @@ enum ErrorMessages {
     static let existErrorMarkAsInvalid = "Only existing elements can be mark as invalid."
 
     static let childCannotBeMeasured = "Child cannot be measured."
+    
+    static let emptyRootDisplayElement = "The root display element does not exit."
+    
+    static let emptyRoot = "The root element must not be nil."
 }
