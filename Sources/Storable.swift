@@ -76,9 +76,11 @@ protocol Storable: AnyObject {
     var rootDisplay: DisplayElement? { get }
     var constraint: Size<Float> { get }
     var areThereElements: Bool { get }
+    
+    func pushEnviromentProperty(property: EnviromentProperty)
+    func popEnviromentProperty()
+    var enviromentProperties: [EnviromentProperty] { get }
 }
-
-
 
 /// Registers a new element in the `World`.
 ///
@@ -94,7 +96,16 @@ func register<V: View, S: Storable>(element: Element,
     storable.register(elementId: element.elementID, to: element)
     precondition(!(view is AnyView), ErrorMessages.anyViewNotAllowed)
     storable.register(elementId: element.elementID, to: view)
+    
+    // Set the element as the owner of all the states inside the view.
     updateViewStateOwner(view, newOwner: element, in: storable)
+    // Collect all the enviroment variables.
+    let enviromentProps = extractEnviromentProperties(in: view)
+    
+    if !enviromentProps.isEmpty {
+        print(enviromentProps)
+    }
+    
     return element
 }
 

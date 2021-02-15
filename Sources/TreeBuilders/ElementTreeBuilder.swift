@@ -26,6 +26,11 @@ protocol TreeElementBuilder {
     func buildElementTree<S: Storable>(_ storable: S) -> Element
 }
 
+/// Carries all the `DynamicProperty`s that should be shared from the parent node to the children.
+struct BranchBag {
+    var enviroment: [DynamicProperty & EnviromentProperty] = []
+}
+
 // MARK: - Entrypoint
 
 func generate<V: View, S: Storable>(rootView: V, in storable: S) {
@@ -132,9 +137,11 @@ private func buildElementTreeAndCheckStateReadAccess<V: View, S: Storable>(
 
     // Copy all view dynamic views in order to get the state.
     let properties: [DynamicProperty] = dynamicPropertyDumper(view: view)
-
+    // Extract all the enviroment variables.
+    let enviromentProps = extractEnviromentProperties(in: view)
+    
     properties.bodyStartReading()
-
+    
     // If the view is not of that type it has to walk it to find the next
     // element buildable view.
     let element: Element = buildElementTree(view.body, storable)

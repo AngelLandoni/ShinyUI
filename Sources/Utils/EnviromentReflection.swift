@@ -22,8 +22,8 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-func extractEnviromentProperties<V: View>(_ view: V,
-                                          world: World) -> [DynamicProperty] {
+func extractEnviromentProperties<V: View>(in view: V) -> [DynamicProperty] {
+    
     typealias Prop = EnviromentProperty & DynamicProperty
     
     var properties: [DynamicProperty] = []

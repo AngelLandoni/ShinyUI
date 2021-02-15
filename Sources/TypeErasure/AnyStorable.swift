@@ -155,6 +155,18 @@ final class AnyStorable: Storable {
     var rootDisplay: DisplayElement? { storage.rootDisplay }
     var constraint: Size<Float> { storage.constraint }
     var areThereElements: Bool { storage.areThereElements }
+    
+    func pushEnviromentProperty(property: EnviromentProperty) {
+        storage.pushEnviromentProperty(property: property)
+    }
+    
+    func popEnviromentProperty() {
+        storage.popEnviromentProperty()
+    }
+    
+    var enviromentProperties: [EnviromentProperty] {
+        storage.enviromentProperties
+    }
 }
 
 extension Storable {

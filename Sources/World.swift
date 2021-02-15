@@ -41,6 +41,8 @@ final class World: Storable {
     fileprivate var frames: [ElementID: ElementFrame] = [:]
     /// Contains a list of `Element` to be recalculated.
     fileprivate var currentInvalidElements: Set<ElementID> = []
+    
+    fileprivate var enviromentStack: [String: EnviromentProperty] = [:]
 
     init() {}
 }
@@ -268,4 +270,18 @@ extension World {
     var constraint: Size<Float> { screenSize }
     var rootDisplay: DisplayElement? { rootDisplayElement }
     var areThereElements: Bool { !elements.isEmpty }
+}
+
+extension World {
+    func pushEnviromentProperty(property: EnviromentProperty) {
+        enviromentStack.append(property)
+    }
+    
+    func popEnviromentProperty() {
+        enviromentStack.removeLast()
+    }
+    
+    var enviromentProperties: [EnviromentProperty] {
+        enviromentStack
+    }
 }

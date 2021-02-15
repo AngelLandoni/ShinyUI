@@ -38,8 +38,8 @@ struct Counter: View {
 }
 
 struct App: View {
-    
     @State var counter: Int = 0
+    @Enviroment var navContext: NavigationContext
     
     var body: some View {
         Navigation {
@@ -66,7 +66,9 @@ struct App: View {
                     }
                     .margin(top(20))
                     .onTap {
-                        //context.push(App())
+                        navContext.push(
+                            Text("Hello other screen")
+                        )
                     }
             } .center()
         }
