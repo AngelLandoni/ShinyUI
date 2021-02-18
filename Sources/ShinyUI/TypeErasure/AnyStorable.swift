@@ -22,8 +22,8 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Hack to make generics works on the AnyView implementation and avoid
-// do an specific implementation for the existential case.
+/// Hack to make generics works on the AnyView implementation and avoid
+/// do an specific implementation for the existential case.
 final class AnyStorable: Storable {
     private let storage: Storable
 
@@ -155,13 +155,17 @@ final class AnyStorable: Storable {
     var rootDisplay: DisplayElement? { storage.rootDisplay }
     var constraint: Size<Float> { storage.constraint }
     var areThereElements: Bool { storage.areThereElements }
-    
-    func pushEnviromentProperty(property: EnviromentProperty) {
-        storage.pushEnviromentProperty(property: property)
+
+    func addEnviroment(property: EnviromentProperty) -> Bool {
+        storage.addEnviroment(property: property)
     }
     
-    func popEnviromentProperty() {
-        storage.popEnviromentProperty()
+    func removeEnviroment(property: EnviromentProperty) {
+        storage.removeEnviroment(property: property)
+    }
+    
+    func enviromentProperty(for id: ObjectIdentifier) -> EnviromentProperty? {
+        storage.enviromentProperty(for: id)
     }
     
     var enviromentProperties: [EnviromentProperty] {

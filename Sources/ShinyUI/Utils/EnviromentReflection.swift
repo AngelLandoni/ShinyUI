@@ -22,11 +22,12 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-func extractEnviromentProperties<V: View>(in view: V) -> [DynamicProperty] {
+func extractEnviromentProperties<V: View>(
+    in view: V) -> [EnviromentProperty & DynamicProperty] {
     
     typealias Prop = EnviromentProperty & DynamicProperty
     
-    var properties: [DynamicProperty] = []
+    var properties: [Prop] = []
     
     // Iterate over each variable to get the
     for property in Mirror(reflecting: view).children {

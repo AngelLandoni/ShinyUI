@@ -24,6 +24,7 @@
 
 final class NavigationElement: LeafElement {
     var elementID: ElementID
+    var context: NavigationContext?
 
     init(_ elementID: ElementID) {
         self.elementID = elementID
@@ -37,6 +38,14 @@ extension Navigation: TreeElementBuilder {
         let element = createElement(type: NavigationElement.self,
                                     with: self,
                                     in: storable)
+        
+        element.context = NavigationContext(storable: AnyStorable(storable))
+        
+        let id = ObjectIdentifier(NavigationContext.Type.self)
+        if let prop = storable.enviromentProperty(for: id) {
+            prop.update(with: element.context)
+        }
+        
         ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         return element
     }

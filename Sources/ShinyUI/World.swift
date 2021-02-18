@@ -42,7 +42,7 @@ final class World: Storable {
     /// Contains a list of `Element` to be recalculated.
     fileprivate var currentInvalidElements: Set<ElementID> = []
     
-    fileprivate var enviromentStack: [String: EnviromentProperty] = [:]
+    fileprivate var enviromentStack: [ObjectIdentifier: EnviromentProperty] = [:]
 
     init() {}
 }
@@ -273,15 +273,35 @@ extension World {
 }
 
 extension World {
-    func pushEnviromentProperty(property: EnviromentProperty) {
-        enviromentStack.append(property)
+    /// Adds an `EnviromentProperty` to the `World`.
+    ///
+    /// - Parameter property: The `EnviromentProperty` to be added or updated.
+    /// - Returns: A boolean indicating if the property was added or updated.
+    func addEnviroment(property: EnviromentProperty) -> Bool {
+        if let storedProperty = enviromentStack[property.identifier] {
+            property.update(with: storedProperty.content)
+            return false
+        }
+        enviromentStack[property.identifier] = property
+        return true
     }
     
-    func popEnviromentProperty() {
-        enviromentStack.removeLast()
+    /// Removes an `EnviromentProperty` from the `World`.
+    ///
+    /// - Parameter with: The `EnviromentProperty` to be removed.
+    func removeEnviroment(property: EnviromentProperty) {
+        enviromentStack.removeValue(forKey: property.identifier)
+    }
+    
+    /// Returns the `EnviromentProperty` associated with the provided `ObjectIdentifier`.
+    ///
+    /// - Parameter for: The `ObjectIdentifier` used to find the property.
+    /// - Returns: If the element exists an `EnviromentProperty` if not a null.
+    func enviromentProperty(for id: ObjectIdentifier) -> EnviromentProperty? {
+        enviromentStack[id]
     }
     
     var enviromentProperties: [EnviromentProperty] {
-        enviromentStack
+        fatalError("Not yet")
     }
 }

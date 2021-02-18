@@ -25,6 +25,26 @@
 #if canImport(UIKit)
 import UIKit
 
+final class ViewContainer: UIView, DisplayElement {
+
+    func updateFrame(_ frame: ElementFrame) {
+        self.frame = frame.asFrame
+    }
+
+    func submit(_ displayElement: DisplayElement) {
+        isUserInteractionEnabled = true
+        addSubview(displayElement.getView())
+    }
+
+    func remove() {
+
+    }
+
+    func getView() -> UIView {
+        return self
+    }
+}
+
 final class NavigationDisplayElement: DisplayElement {
 
     let navigationController = UINavigationController()
@@ -55,12 +75,26 @@ final class NavigationDisplayElement: DisplayElement {
 }
 
 extension NavigationElement: TreeDisplayElementBuilder {
-    func buildDisplayElementTree<S: Storable>(_ storable: S, _ host: DisplayElement) {
-        let navigation = createDisplayElement(type: NavigationDisplayElement.self,
-                                              for: self,
-                                              in: storable)
+    func buildDisplayElementTree<S: Storable>(_ storable: S,
+                                              _ host: DisplayElement) {
+        let navigation = createDisplayElement(
+            type: NavigationDisplayElement.self,
+            for: self,
+            in: storable
+        )
+        
         host.submit(navigation)
         navigation.configure()
+        
+        context?.pushCallback.content = { [weak navigation] viewBuilder in
+            let container = ViewContainer()
+            ShinyUI.buildDisplayElementTree(viewBuilder(), storable, container)
+            
+            let newViewController = UIViewController()
+            newViewController.view = container
+            
+            navigation?.navigationController.pushViewController(newViewController, animated: true)
+        }
         
         let child = getChildElementId(for: elementID, in: storable)
         ShinyUI.buildDisplayElementTree(child, storable, navigation)

@@ -22,22 +22,26 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-protocol EnviromentProperty { }
-
-@propertyWrapper
-public struct Enviroment<Value>: DynamicProperty, EnviromentProperty {
+public struct NavigationContext {
     
-    private var value: Ref<Value?> = Ref(nil)
-    var owner: Ref<OwnerEntry?> = Ref(nil)
-
-    public var wrappedValue: Value {
-        get { return value.content! }
-        nonmutating set { value.content = newValue }
+    var storable: AnyStorable
+    
+    var pushCallback: Ref<((() -> Element) -> Void)?> = Ref(nil)
+    
+    public func push<V: View>(_ view: V) {
+        pushCallback.content?({
+            buildElementTree(view, storable)
+        })
     }
-    
-    public init() { }
-    
-    public init(wrappedValue: Value) {
-        value.content = wrappedValue
+}
+
+public struct Navigation<Content: View>: View {
+
+    private let content: Content
+
+    public init(@ViewBuilder _ contentBuilder : () -> Content) {
+        self.content = contentBuilder()
     }
+
+    public var body : some View { content }
 }

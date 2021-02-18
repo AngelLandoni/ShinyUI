@@ -22,19 +22,47 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-public struct NavigationContext {
-    public func push<V: View>(_ view: V) {
-        print("Pushing: \(view)")
+protocol EnviromentProperty {
+    var identifier: ObjectIdentifier { get }
+    var content: Any? { get }
+    func update(with value: Any?)
+}
+
+@propertyWrapper
+public struct Enviroment<Value>: DynamicProperty, EnviromentProperty {
+    
+    var value: Ref<Value?> = Ref(nil)
+    var owner: Ref<OwnerEntry?> = Ref(nil)
+
+    public var wrappedValue: Value {
+        get { return value.content! }
+        nonmutating set { value.content = newValue }
+    }
+    
+    public init() { }
+    
+    public init(wrappedValue: Value) {
+        value.content = wrappedValue
+    }
+    
+    var identifier: ObjectIdentifier {
+        let type = Value.Type.self
+        return ObjectIdentifier(type)
+    }
+    
+    var content: Any? {
+        value.content
+    }
+    
+    func update(with newValue: Any?) {
+        // Avoid nil values for now. This can happen if the Enviroment
+        // is not instantiated yet.
+        guard let newValue = newValue else { return }
+        // Cast the new value to the correct type.
+        guard let correctTypedValue = newValue as? Value else {
+            fatalError("Error the Enviroment types does not match")
+        }
+        value.content = correctTypedValue
     }
 }
 
-public struct Navigation<Content: View>: View {
-
-    private let content: Content
-
-    public init(@ViewBuilder _ contentBuilder : () -> Content) {
-        self.content = contentBuilder()
-    }
-
-    public var body : some View { content }
-}

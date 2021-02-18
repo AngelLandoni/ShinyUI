@@ -77,8 +77,9 @@ protocol Storable: AnyObject {
     var constraint: Size<Float> { get }
     var areThereElements: Bool { get }
     
-    func pushEnviromentProperty(property: EnviromentProperty)
-    func popEnviromentProperty()
+    func addEnviroment(property: EnviromentProperty) -> Bool
+    func removeEnviroment(property: EnviromentProperty)
+    func enviromentProperty(for id: ObjectIdentifier) -> EnviromentProperty?
     var enviromentProperties: [EnviromentProperty] { get }
 }
 
@@ -132,4 +133,40 @@ func link<S: Storable>(children: [Element],
     
     storable.link(children: dataSet, to: parent.elementID)
     return children
+}
+
+/// Adds a list of `EnviromentProperty` properties to the `Storable` and returns the list of
+/// added properties.
+///
+/// - Parameters:
+///     - properties: The `EnviromentProperty`s to be added.
+///     - in: The `Storabe` used to store the properties.
+///
+/// - Returns: An array of with all the properties added.
+func addEnviroment<S: Storable>(
+    properties: [EnviromentProperty], in storable: S) -> [EnviromentProperty] {
+    
+    var newProperties: [EnviromentProperty] = []
+    // Iterate over all the enviroment properties, if some already in the
+    // store ignore it.
+    for prop in properties {
+        // Add the enviroment property or update it if already exist.
+        if storable.addEnviroment(property: prop) {
+            newProperties.append(prop)
+        }
+    }
+    
+    return newProperties
+}
+
+/// Removes a list of `EnviromentProperty`s from the `Storable`.
+///
+/// - Parameters:
+///     - properties: A list of `EnviromentProperty`s to be deleted.
+///     - in: The `Storabe` where the properties are stored.
+func removeEnviroment<S: Storable>(properties: [EnviromentProperty],
+                                   in storable: S) {
+    for prop in properties {
+        storable.removeEnviroment(property: prop)
+    }
 }

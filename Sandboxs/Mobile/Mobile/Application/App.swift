@@ -26,8 +26,8 @@ import Dispatch
 import ShinyUI
 
 struct Counter: View {
-    
     @Binding var counter: Int
+    @Enviroment var navContext: NavigationContext
     
     var body: some View {
         Text("Mobile App ShinyUI \(counter)")
@@ -39,7 +39,7 @@ struct Counter: View {
 
 struct App: View {
     @State var counter: Int = 0
-    @Enviroment var navContext: NavigationContext
+    @Enviroment var navCtx: NavigationContext
     
     var body: some View {
         Navigation {
@@ -66,9 +66,7 @@ struct App: View {
                     }
                     .margin(top(20))
                     .onTap {
-                        navContext.push(
-                            Text("Hello other screen")
-                        )
+                        navCtx.push(Text("Hello other screen"))
                     }
             } .center()
         }
