@@ -38,4 +38,10 @@ public struct Color {
 
 extension Color {
     public static var clear: Color { Color(0xFFFFFF, alpha: 0x00) }
+    public static var white: Color { Color(0xFFFFFF, alpha: 0xFF) }
+    public static var black: Color { Color(0x000000, alpha: 0xFF) }
+    public static var red: Color { Color(0xFF0000, alpha: 0xFF) }
+    public static var green: Color { Color(0x00FF00, alpha: 0xFF) }
+    public static var blue: Color { Color(0x0000FF, alpha: 0xFF) }
+    public static var yellow: Color { Color(0xFFFF00, alpha: 0xFF) }
 }

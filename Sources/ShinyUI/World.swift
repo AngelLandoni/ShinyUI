@@ -275,11 +275,19 @@ extension World {
 extension World {
     /// Adds an `EnviromentProperty` to the `World`.
     ///
+    /// This method updates the new property with the content of an already created property if the
+    /// new property does not contain any value, if it contains the stored already created property
+    /// will be updated.
+    ///
     /// - Parameter property: The `EnviromentProperty` to be added or updated.
     /// - Returns: A boolean indicating if the property was added or updated.
     func addEnviroment(property: EnviromentProperty) -> Bool {
-        if let storedProperty = enviromentStack[property.identifier] {
-            property.update(with: storedProperty.content)
+        if let storedProperty = enviromentProperty(for: property.identifier) {
+            guard let propertyContent = property.content else {
+                property.update(with: storedProperty.content)
+                return false
+            }
+            storedProperty.update(with: propertyContent)
             return false
         }
         enviromentStack[property.identifier] = property

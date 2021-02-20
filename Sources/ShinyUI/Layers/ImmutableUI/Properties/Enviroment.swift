@@ -33,7 +33,8 @@ public struct Enviroment<Value>: DynamicProperty, EnviromentProperty {
     
     var value: Ref<Value?> = Ref(nil)
     var owner: Ref<OwnerEntry?> = Ref(nil)
-
+    var id: Int?
+    
     public var wrappedValue: Value {
         get { return value.content! }
         nonmutating set { value.content = newValue }
@@ -45,6 +46,11 @@ public struct Enviroment<Value>: DynamicProperty, EnviromentProperty {
         value.content = wrappedValue
     }
     
+    public init<ID: Hashable>(wrappedValue: Value, id objectID: ID) {
+        value.content = wrappedValue
+        self.id = objectID.hashValue
+    }
+    
     var identifier: ObjectIdentifier {
         let type = Value.Type.self
         return ObjectIdentifier(type)
@@ -54,13 +60,16 @@ public struct Enviroment<Value>: DynamicProperty, EnviromentProperty {
         value.content
     }
     
+    /// Updates the content of the `Enviroment` only if the new content is the same type as `Value`.
+    ///
+    /// - Parameter with: The new content to set to the `Enviroment`
     func update(with newValue: Any?) {
         // Avoid nil values for now. This can happen if the Enviroment
         // is not instantiated yet.
         guard let newValue = newValue else { return }
         // Cast the new value to the correct type.
         guard let correctTypedValue = newValue as? Value else {
-            fatalError("Error the Enviroment types does not match")
+            fatalError(ErrorMessages.enviromentTypeDoesNotMatch)
         }
         value.content = correctTypedValue
     }

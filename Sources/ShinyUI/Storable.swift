@@ -100,13 +100,7 @@ func register<V: View, S: Storable>(element: Element,
     
     // Set the element as the owner of all the states inside the view.
     updateViewStateOwner(view, newOwner: element, in: storable)
-    // Collect all the enviroment variables.
-    let enviromentProps = extractEnviromentProperties(in: view)
-    
-    if !enviromentProps.isEmpty {
-        print(enviromentProps)
-    }
-    
+   
     return element
 }
 

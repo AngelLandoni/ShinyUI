@@ -27,6 +27,7 @@ public struct NavigationContext {
     var storable: AnyStorable
     
     var pushCallback: Ref<((() -> Element) -> Void)?> = Ref(nil)
+    var popCallBack: Ref<() -> Void> = Ref(nil)
     
     public func push<V: View>(_ view: V) {
         pushCallback.content?({

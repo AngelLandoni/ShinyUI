@@ -25,21 +25,34 @@
 import Dispatch
 import ShinyUI
 
+struct Details: View {
+    
+    var numberOfTaps: Int
+    
+    var body: some View {
+        Text("This is the number if times you pressed over the thing \(numberOfTaps)")
+            .center()
+            .decorate {
+                color(.white)
+            }
+    
+    }
+}
+
 struct Counter: View {
     @Binding var counter: Int
-    @Enviroment var navContext: NavigationContext
     
     var body: some View {
         Text("Mobile App ShinyUI \(counter)")
             .font("", 20)
-            .color(Color(0xFFFFFF, alpha: 0x00))
+            .color(.clear)
             .foregroundColor(Color(0xFFFFFFF))
     }
 }
 
 struct App: View {
     @State var counter: Int = 0
-    @Enviroment var navCtx: NavigationContext
+    @Enviroment var navigationCtx: NavigationContext
     
     var body: some View {
         Navigation {
@@ -66,7 +79,7 @@ struct App: View {
                     }
                     .margin(top(20))
                     .onTap {
-                        navCtx.push(Text("Hello other screen"))
+                        navigationCtx.push(Details(numberOfTaps: counter))
                     }
             } .center()
         }

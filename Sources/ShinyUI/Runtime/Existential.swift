@@ -16,7 +16,6 @@ extension Existential {
     }
 }
 
-
 extension Existential: CustomStringConvertible {
     public var description: String {
         """

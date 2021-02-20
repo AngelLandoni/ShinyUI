@@ -50,4 +50,6 @@ enum ErrorMessages {
     static let emptyRootDisplayElement = "The root display element does not exit."
     
     static let emptyRoot = "The root element must not be nil."
+    
+    static let enviromentTypeDoesNotMatch = "Error the Enviroment types does not match"
 }

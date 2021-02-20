@@ -29,8 +29,6 @@ import UIKit
 private final class ImageDisplayElement: DisplayElement {
     fileprivate let view: UIImageView = UIImageView()
 
-    // MARK: DisplayElement
-
     func updateFrame(_ frame: ElementFrame) {
         view.frame = frame.asFrame
     }

@@ -31,7 +31,8 @@ protocol TreeElementBuilder {
 func generate<V: View, S: Storable>(rootView: V, in storable: S) {
     let rootElement = ShinyUI.buildElementTree(rootView, storable).elementID
     storable.updateRoot(with: rootElement)
-    storable.updateFrame(of: rootElement, with: .fromOrigin(storable.constraint))
+    storable.updateFrame(of: rootElement,
+                         with: .fromOrigin(storable.constraint))
 }
 
 // MARK: - Main builder
@@ -135,20 +136,20 @@ private func buildElementTreeAndCheckStateReadAccess<V: View, S: Storable>(
     // Extract all the enviroment variables.
     let enviromentProps = extractEnviromentProperties(in: view)
     
+    // Add to the storable all the new enviroment variables if the enviroment
+    // variable already exist update it.
     let added = addEnviroment(properties: enviromentProps, in: storable)
     
     properties.bodyStartReading()
-    
     // If the view is not of that type it has to walk it to find the next
     // element buildable view.
     let element: Element = buildElementTree(view.body, storable)
-
     properties.bodyStopReading()
     
     removeEnviroment(properties: added, in: storable)
 
     // After creation check which state was read and mark it as an
-    // invalidation candidate.
+    // invalidation candidateq.
     properties.configureInvalidationAfterElementCreation()
 
     return element
