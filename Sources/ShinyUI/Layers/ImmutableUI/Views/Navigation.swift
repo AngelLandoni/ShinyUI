@@ -25,14 +25,25 @@
 public struct NavigationContext {
     
     var storable: AnyStorable
+    var parent: Element?
     
-    var pushCallback: Ref<((() -> Element) -> Void)?> = Ref(nil)
-    var popCallBack: Ref<() -> Void> = Ref(nil)
+    var pushCallback: Box<((() -> Element) -> Void)?> = Box(nil)
+    var popCallBack: Box<(() -> Void)?> = Box(nil)
     
     public func push<V: View>(_ view: V) {
         pushCallback.content?({
-            buildElementTree(view, storable)
+            guard let parent = parent else {
+                fatalError("The child can not be linked to any parent")
+            }
+            return ShinyUI.buildElementTree(view,
+                                            linkedTo: parent,
+                                            storable: storable,
+                                            replaceChild: false)
         })
+    }
+    
+    public func pop() {
+        popCallBack.content?()
     }
 }
 

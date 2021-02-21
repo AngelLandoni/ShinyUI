@@ -37,8 +37,8 @@ extension VStackElement: Layout {
         
         assert(children.count != 1, "VStack does not support one child yet")
         
-        // Store a temp reference to the child to not find it again.
-        var tempChilRef: [Element] = []
+        // Store a temp Boxerence to the child to not find it again.
+        var tempChilBox: [Element] = []
         
         var spacers: Set<Int> = []
         // Used to position the element in the Y axis depending the number of
@@ -58,7 +58,7 @@ extension VStackElement: Layout {
             guard let childElement = storable.element(for: child) else { continue }
             
             // Store it in the temp array got use it later.
-            tempChilRef.append(childElement)
+            tempChilBox.append(childElement)
             
             // Avoid spacers.
             if childElement is SpacerElement {
@@ -67,7 +67,7 @@ extension VStackElement: Layout {
             }
             
             // Create the frame with the correct position for the current child.
-            // in order to have a referecen when creating it (this fixes a
+            // in order to have a Boxerecen when creating it (this fixes a
             // specific problem related with stack inside stack).
             storable.updateFrame(
                 of: child,
@@ -105,7 +105,7 @@ extension VStackElement: Layout {
         let spacerSize = (constraint.height - yOffset) / Float(spacers.count)
         var shiftOffset: Float = 0
         
-        for (index, child) in tempChilRef.enumerated() {
+        for (index, child) in tempChilBox.enumerated() {
             // Ignore the spacer and increate the shift offset.
             if spacers.contains(index) {
                 shiftOffset += spacerSize

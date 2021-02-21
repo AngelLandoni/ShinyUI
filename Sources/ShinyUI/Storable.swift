@@ -30,6 +30,7 @@ typealias ElementBuilder = () -> Element
 protocol Storable: AnyObject {
     func doubleLink(child: ElementID, and parent: ElementID)
     func link(child: ElementID, to parent: ElementID)
+    func link(addingChild child: ElementID, to parent: ElementID)
     func link(children: OrderedSet<ElementID>, to parent: ElementID)
     func link(parent: ElementID, to child: ElementID)
     func unlink(child: ElementID)
@@ -109,6 +110,14 @@ func link<S: Storable>(child: Element,
                        to parent: Element,
                        in storable: S) -> Element {
     storable.link(child: child.elementID, to: parent.elementID)
+    storable.link(parent: parent.elementID, to: child.elementID)
+    return child
+}
+
+func link<S: Storable>(addingChild child: Element,
+                       to parent: Element,
+                       in storable: S) -> Element {
+    storable.link(addingChild: child.elementID, to: parent.elementID)
     storable.link(parent: parent.elementID, to: child.elementID)
     return child
 }

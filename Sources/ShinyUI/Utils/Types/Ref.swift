@@ -22,7 +22,7 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-final class Ref<T> {
+final class Box<T> {
     public var content: T
 
     public init(_ newValue: T) {

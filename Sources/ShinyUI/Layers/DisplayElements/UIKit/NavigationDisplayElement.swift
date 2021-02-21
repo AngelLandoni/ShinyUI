@@ -73,7 +73,7 @@ extension NavigationElement: TreeDisplayElementBuilder {
             ShinyUI.layout(element: element.elementID, in: storable)
             // Create the views.
             ShinyUI.buildDisplayElementTree(element, storable, container)
-            
+
             // Create a simple host controller to send the view.
             let newViewController = UIViewController()
             newViewController.view.frame = navigation?.getView().frame ?? .zero
@@ -83,6 +83,10 @@ extension NavigationElement: TreeDisplayElementBuilder {
                 newViewController,
                 animated: true
             )
+        }
+        
+        context?.popCallBack.content = { [weak navigation] in
+            navigation?.navigationController.popViewController(animated: true)
         }
         
         let child = getChildElementId(for: elementID, in: storable)

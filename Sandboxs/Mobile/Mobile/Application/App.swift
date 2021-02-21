@@ -27,15 +27,33 @@ import ShinyUI
 
 struct Details: View {
     
+    @Enviroment var navigationCtx: NavigationContext
+    
     var numberOfTaps: Int
     
     var body: some View {
-        Text("This is the number if times you pressed over the thing \(numberOfTaps)")
-            .center()
-            .decorate {
-                color(.white)
-            }
-    
+        VStack {
+            Text("This is the number if times you pressed over the thing \(numberOfTaps)")
+            Text("Yes?")
+            Text("Tap me")
+                .foregroundColor(.white)
+                .margin {
+                    horizontal(15)
+                    vertical(10)
+                }
+                .decorate {
+                    cornerRadius(15)
+                    color(.red)
+                }
+                .onTap {
+                    navigationCtx.pop()
+                }
+        }
+        .center()
+        .decorate {
+            cornerRadius(15)
+            color(Color(0x3D7FFF))
+        }
     }
 }
 
@@ -81,7 +99,7 @@ struct App: View {
                     .onTap {
                         navigationCtx.push(Details(numberOfTaps: counter))
                     }
-            } .center()
+            }.center()
         }
     }
 }

@@ -24,16 +24,20 @@
 
 extension NavigationElement: Layout, ShiftPropagationStopper {
     func layout<S: Storable>(_ constraint: Size<Float>, _ storable: S) {
-        let child = getChildElementId(for: elementID, in: storable)
-        
-        guard let _ = tryLayout(the: child,
-                                with: constraint,
-                                in: storable) else {
-            return
+        guard let children = storable.children(of: elementID) else {
+            fatalError(ErrorMessages.doesNotContainAnyChildren)
         }
         
-        var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
-        selfFrame.size = constraint
-        setFrame(storable, frame: selfFrame)
+        for child in children {
+            guard let _ = tryLayout(the: child,
+                                    with: constraint,
+                                    in: storable) else {
+                return
+            }
+            
+            var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
+            selfFrame.size = constraint
+            setFrame(storable, frame: selfFrame)
+        }
     }
 }

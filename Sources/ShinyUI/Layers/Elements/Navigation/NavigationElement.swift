@@ -39,7 +39,8 @@ extension Navigation: TreeElementBuilder {
                                     with: self,
                                     in: storable)
         // Create a new navigation context.
-        element.context = NavigationContext(storable: AnyStorable(storable))
+        element.context = NavigationContext(storable: AnyStorable(storable),
+                                            parent: element)
         // Context must be unwrapped before creating the enviroment otherwise
         // the type of the Enviroment will be Optional<NavigationContext> and
         // the search by indentifier will fail.

@@ -31,8 +31,8 @@ protocol EnviromentProperty {
 @propertyWrapper
 public struct Enviroment<Value>: DynamicProperty, EnviromentProperty {
     
-    var value: Ref<Value?> = Ref(nil)
-    var owner: Ref<OwnerEntry?> = Ref(nil)
+    var value: Box<Value?> = Box(nil)
+    var owner: Box<OwnerEntry?> = Box(nil)
     var id: Int?
     
     public var wrappedValue: Value {

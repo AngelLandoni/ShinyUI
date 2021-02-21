@@ -50,33 +50,33 @@ extension OwnerEntry {
 @propertyWrapper
 public struct State<Value>: DynamicProperty {
     /// The content store in the state.
-    private let value: Ref<Value>
+    private let value: Box<Value>
 
     /// Flag which contains the read state access, if it was read or not.
-    private var bodyReadAccessFootprint: Ref<Bool> = Ref(false)
+    private var bodyReadAccessFootprint: Box<Bool> = Box(false)
 
     /// Indicates if the `State` should invalidate the owner or not.
     ///
     /// - Note: Check `buildElementTree` to figure it out how it works.
-    private var shouldInvalidate: Ref<Bool> = Ref(false)
+    private var shouldInvalidate: Box<Bool> = Box(false)
 
-    /// A reference to the entry. This thing should be changed to a pointer to avoid retain release?.
+    /// A Boxerence to the entry. This thing should be changed to a pointer to avoid retain release?.
     /// If the state exists it has an owner at least.
     ///
-    /// This variable is changed every tree recreation maybe is better change the `Ref` for an actual
+    /// This variable is changed every tree recreation maybe is better change the `Box` for an actual
     /// pointer to avoid retain release, it should be safe if the pointer is stored in the world or some
     /// other place.
     ///
     /// - Note: The owner of the `State` is always an Element.
-    var owner: Ref<OwnerEntry?> = Ref(nil)
+    var owner: Box<OwnerEntry?> = Box(nil)
 
     /// A flag to allow only the body to ready when there is not owner.
     ///
     /// - Note: Easy to glitch this on multithread environments, this must be locked.
     /// - TODO: Lock this.
-    private var isBodyReading: Ref<Bool> = Ref(false)
+    private var isBodyReading: Box<Bool> = Box(false)
 
-    private let derivedBindings: Ref<[() -> Void]> = Ref([])
+    private let derivedBindings: Box<[() -> Void]> = Box([])
 
     public var wrappedValue: Value {
         get {
@@ -112,7 +112,7 @@ public struct State<Value>: DynamicProperty {
     }
 
     public init(wrappedValue: Value) {
-        value = Ref(wrappedValue)
+        value = Box(wrappedValue)
     }
 
     public var projectedValue: Binding<Value> {

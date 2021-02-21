@@ -23,7 +23,7 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 protocol DynamicProperty {
-    var owner: Ref<OwnerEntry?> { get set }
+    var owner: Box<OwnerEntry?> { get set }
     func configureInvalidationAfterElementCreation()
     func resetInvalidationState()
     func bodyStartReading()
@@ -38,7 +38,7 @@ extension DynamicProperty {
 }
 
 extension Array: DynamicProperty where Element == DynamicProperty {
-    var bodyReadAccessFootprint: Ref<Bool> {
+    var bodyReadAccessFootprint: Box<Bool> {
         get {
             fatalError(ErrorMessages.arrayDynamicPropertyReadAccessFootPrint)
         }
@@ -47,17 +47,17 @@ extension Array: DynamicProperty where Element == DynamicProperty {
         }
     }
 
-    var shouldInvalidate: Ref<Bool> {
+    var shouldInvalidate: Box<Bool> {
         get { fatalError(ErrorMessages.arrayDynamicPropertyShouldInvalidate) }
         set { fatalError(ErrorMessages.arrayDynamicPropertyShouldInvalidate) }
     }
 
-    var owner: Ref<OwnerEntry?> {
+    var owner: Box<OwnerEntry?> {
         get {
             // All the owners inside this array should point to the same one.
             // A state can only have one owner and all the states in a node
             // belongs to the same node.
-            first?.owner ?? Ref(nil)
+            first?.owner ?? Box(nil)
         }
         mutating set {
             // TODO: Not sure if this is working, if something is working wrong

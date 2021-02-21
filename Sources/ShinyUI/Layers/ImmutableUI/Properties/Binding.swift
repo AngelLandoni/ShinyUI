@@ -37,20 +37,20 @@ public struct Binding<Value>: DynamicProperty {
     ///
     /// - Note: This is a hacky implementation used to know about the read access, maybe we have
     ///         to find a better way to achieve the same.
-    private let bodyReadAccessFootprint: Ref<Bool> = Ref(false)
+    private let bodyReadAccessFootprint: Box<Bool> = Box(false)
 
     /// Indicates if the `State` should invalidate the owner or not.
     ///
     /// - Note: Check `buildElementTree` to figure it out how it works.
-    private var shouldInvalidate: Ref<Bool> = Ref(false)
+    private var shouldInvalidate: Box<Bool> = Box(false)
 
     /// A flag to allow only the body to ready when there is not owner.
     ///
     /// - Note: Easy to glitch this on multithread environments, this must be locked.
     /// - TODO: Lock this.
-    private var isBodyReading: Ref<Bool> = Ref(false)
+    private var isBodyReading: Box<Bool> = Box(false)
 
-    var owner: Ref<OwnerEntry?> = Ref(nil)
+    var owner: Box<OwnerEntry?> = Box(nil)
 
     public var wrappedValue: Value {
         get {

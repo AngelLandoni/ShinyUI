@@ -150,7 +150,7 @@ func findFirstParentWithDisplay<S: Storable>(for element: ElementID,
             targetElement = parent
             continue
         }
-        // If the element does not have a parent it must refer to the root.
+        // If the element does not have a parent it must Boxer to the root.
         guard let rootDisplayElement = storable.rootDisplay else {
             fatalError(ErrorMessages.emptyRootDisplayElement)
         }

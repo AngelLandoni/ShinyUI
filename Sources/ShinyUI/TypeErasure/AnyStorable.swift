@@ -39,6 +39,10 @@ final class AnyStorable: Storable {
         storage.link(child: child, to: parent)
     }
     
+    func link(addingChild child: ElementID, to parent: ElementID) {
+        storage.link(addingChild: child, to: parent)
+    }
+    
     func link(children: OrderedSet<ElementID>, to parent: ElementID) {
         storage.link(children: children, to: parent)
     }

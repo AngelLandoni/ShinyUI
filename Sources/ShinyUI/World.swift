@@ -73,6 +73,10 @@ extension World {
         parentToChildren[parent] = [child]
     }
     
+    func link(addingChild child: ElementID, to parent: ElementID) {
+        parentToChildren[parent]?.append(child)
+    }
+    
     func link(children: OrderedSet<ElementID>, to parent: ElementID) {
         parentToChildren[parent] = children
     }

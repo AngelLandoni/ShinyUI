@@ -22,7 +22,7 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-/// Hooks into the `Element`'s states using reflection to know when they changed and perform
+/// Hooks into the `Element`'s states using Boxlection to know when they changed and perform
 /// an automatic invalidation.
 ///
 /// - Note: SwiftUI uses this in the same way and Flutter use the setState, not sure which is better
@@ -40,7 +40,7 @@ func updateViewStateOwner<V: View, S: Storable>(_ view: V,
         // Set the element as the owner, take in consideration that the
         // 'owner' is allocated in the heap so we are only copying the
         // address and the rest of the struct but the content of the pointer
-        // is shared (Maybe instead of use `Ref` we can use a simple pointer
+        // is shared (Maybe instead of use `Box` we can use a simple pointer
         // to avoid retain release).
         dynProp.owner.content = OwnerEntry(owner, storable)
     }

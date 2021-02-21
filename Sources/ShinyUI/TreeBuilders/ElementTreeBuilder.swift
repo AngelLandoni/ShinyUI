@@ -49,7 +49,7 @@ func createElement<T: Element, V: View, S: Storable>(type: T.Type,
 ///
 /// - parameters:
 ///         - view: The view used to create the `Element`.
-///         - world: The world to store the references and elements.
+///         - world: The world to store the Boxerences and elements.
 ///
 /// - Note: This method should not be used to generate the root node, instead use `generate`.
 ///         otherwise the rootElement will not be set in the world.
@@ -84,21 +84,27 @@ func buildElementTree<V: View, S: Storable>(_ view: V,
 /// - parameters:
 ///         - view: The view used to create the `Element`.
 ///         - parent: The owner of the child.
-///         - world: The world to store the references and elements.
+///         - world: The world to store the Boxerences and elements.
+///         - replaceChild: A flag to indicate if the child must be replaced or added to the parent.
 ///
 /// - Note: This method should not be used to generate the root node, instead use `generate`.
 ///         otherwise the rootElement will not be set in the world.
 @discardableResult
 func buildElementTree<V: View, S: Storable>(_ view: V,
-                               linkedTo parent: Element,
-                               storable: S) -> Element {
+                                            linkedTo parent: Element,
+                                            storable: S,
+                                            replaceChild: Bool = true) -> Element {
     let element: Element
-
+    
     defer {
         register(element: element, representedBy: view, in: storable)
-        link(child: element, to: parent, in: storable)
+        if replaceChild {
+            link(child: element, to: parent, in: storable)
+        } else {
+            link(addingChild: element, to: parent, in: storable)
+        }
     }
-
+    
     // Check if the view is a `TreeElementBuilder` in that case create a
     // element using the method buildElementTree, this chunk if important
     // if it fail it will redirect the flow directly to the child so we can
@@ -109,10 +115,10 @@ func buildElementTree<V: View, S: Storable>(_ view: V,
         element = elementBuilder.buildElementTree(storable)
         return element
     }
-
+    
     // Reset the invalidation state
     resetViewStateInvalidation(view)
-
+    
     // If the view is not of that type it has to walk it to find the next
     // element buildable view.
     element = buildElementTree(view, storable)
@@ -179,7 +185,7 @@ buildElementTree<V1: View, V2: View, S: Storable>(_ view: Storage2<V1, V2>,
 
 func buildElementTree<V1: View, V2: View, V3: View, S: Storable>(
     _ view: Storage3<V1, V2, V3>, _ storable: S) -> Element {
-    // Create parent element which will be the reference for the children.
+    // Create parent element which will be the Boxerence for the children.
     let storageElement = StorageElement(ElementID.random())
     // Create children elements.
     let eA = ShinyUI.buildElementTree(view.a, storable)
