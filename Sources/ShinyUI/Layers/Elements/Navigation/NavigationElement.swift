@@ -38,9 +38,14 @@ extension Navigation: TreeElementBuilder {
         let element = createElement(type: NavigationElement.self,
                                     with: self,
                                     in: storable)
+
         // Create a new navigation context.
-        element.context = NavigationContext(storable: AnyStorable(storable),
-                                            parent: element)
+        element.context = NavigationContext(
+            storable: AnyStorable(storable),
+            parent: element,
+            currentEnviromentProps: storable.enviromentProperties
+        )
+        
         // Context must be unwrapped before creating the enviroment otherwise
         // the type of the Enviroment will be Optional<NavigationContext> and
         // the search by indentifier will fail.
@@ -52,7 +57,7 @@ extension Navigation: TreeElementBuilder {
         ShinyUI.buildElementTree(body, linkedTo: element, storable: storable)
         
         // Remove the property to not affect other branches.
-        removeEnviroment(properties: propsAdded, in: storable)
+        removeEnviroment(properties: propsAdded, from: storable)
         
         return element
     }

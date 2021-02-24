@@ -114,6 +114,7 @@ func link<S: Storable>(child: Element,
     return child
 }
 
+@discardableResult
 func link<S: Storable>(addingChild child: Element,
                        to parent: Element,
                        in storable: S) -> Element {
@@ -168,7 +169,7 @@ func addEnviroment<S: Storable>(
 ///     - properties: A list of `EnviromentProperty`s to be deleted.
 ///     - in: The `Storabe` where the properties are stored.
 func removeEnviroment<S: Storable>(properties: [EnviromentProperty],
-                                   in storable: S) {
+                                   from storable: S) {
     for prop in properties {
         storable.removeEnviroment(property: prop)
     }

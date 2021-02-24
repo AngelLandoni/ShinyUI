@@ -152,7 +152,7 @@ private func buildElementTreeAndCheckStateReadAccess<V: View, S: Storable>(
     let element: Element = buildElementTree(view.body, storable)
     properties.bodyStopReading()
     
-    removeEnviroment(properties: added, in: storable)
+    removeEnviroment(properties: added, from: storable)
 
     // After creation check which state was read and mark it as an
     // invalidation candidateq.

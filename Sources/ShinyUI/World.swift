@@ -276,6 +276,9 @@ extension World {
     var areThereElements: Bool { !elements.isEmpty }
 }
 
+/// TODO: The way used to store the enviroment properties is not suitable in multithread enviroments.
+/// If we want to build / generate the tree in background it will have unexpected behaviors due the current
+/// approach.
 extension World {
     /// Adds an `EnviromentProperty` to the `World`.
     ///
@@ -314,6 +317,6 @@ extension World {
     }
     
     var enviromentProperties: [EnviromentProperty] {
-        fatalError("Not yet")
+        enviromentStack.map { $0.value }
     }
 }

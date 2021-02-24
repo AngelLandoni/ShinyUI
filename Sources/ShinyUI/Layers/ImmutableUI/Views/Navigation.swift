@@ -22,24 +22,47 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+typealias ElementBuilderBlock = () -> Element
+typealias NavigationCallbackBlock = (ElementBuilderBlock,
+                                     [EnviromentProperty]) -> Void
+
 public struct NavigationContext {
     
     var storable: AnyStorable
     var parent: Element?
     
-    var pushCallback: Box<((() -> Element) -> Void)?> = Box(nil)
+    /// Contains a list of `EnviromentProperty` availables in the branch.
+    ///
+    /// This is needed due the nature of the `EnviromentProperty` extraction algorithm, when the
+    /// `View` is created the stack was already cleared so the new `Element` child does not have
+    /// a way to access them.
+    ///
+    var currentEnviromentProps: [EnviromentProperty]
+    
+    var pushCallback: Box<NavigationCallbackBlock?> = Box(nil)
     var popCallBack: Box<(() -> Void)?> = Box(nil)
     
     public func push<V: View>(_ view: V) {
-        pushCallback.content?({
-            guard let parent = parent else {
-                fatalError("The child can not be linked to any parent")
-            }
-            return ShinyUI.buildElementTree(view,
-                                            linkedTo: parent,
-                                            storable: storable,
-                                            replaceChild: false)
-        })
+        pushCallback.content?(
+            {
+                guard let parent = parent else {
+                    fatalError("The child can not be linked to any parent")
+                }
+                // Propagate enviroment properties.
+                addEnviroment(properties: currentEnviromentProps, in: storable)
+                defer {
+                    removeEnviroment(properties: currentEnviromentProps,
+                                     from: storable)
+                }
+                /// The view Element is generated inside the block to erase the view and avoid the
+                /// AnyView and the build problems related with it.
+                return ShinyUI.buildElementTree(view,
+                                                linkedTo: parent,
+                                                storable: storable,
+                                                replaceChild: false)
+            },
+            extractEnviromentProperties(in: view)
+        )
     }
     
     public func pop() {

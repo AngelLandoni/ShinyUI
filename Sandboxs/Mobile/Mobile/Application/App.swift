@@ -28,15 +28,19 @@ import ShinyUI
 struct Details: View {
     
     @Enviroment var navigationCtx: NavigationContext
+    @Enviroment var theSuperName: String
     
     var numberOfTaps: Int
     
     var body: some View {
         VStack {
-            Text("This is the number if times you pressed over the thing \(numberOfTaps)")
+            //Text("This is the \(theSuperName) number if times you pressed over the thing \(numberOfTaps)")
             Text("Yes?")
-            Text("Tap me")
+            Text("Yes?")
+            Text("Pop view")
+                .color(.red)
                 .foregroundColor(.white)
+                .font("", 42)
                 .margin {
                     horizontal(15)
                     vertical(10)
@@ -71,9 +75,10 @@ struct Counter: View {
 struct App: View {
     @State var counter: Int = 0
     @Enviroment var navigationCtx: NavigationContext
+    @Enviroment var theName: String = "TheName"
     
     var body: some View {
-        Navigation {
+        /*Navigation {
             VStack {
                 Counter(counter: $counter)
                     .center()
@@ -100,6 +105,7 @@ struct App: View {
                         navigationCtx.push(Details(numberOfTaps: counter))
                     }
             }.center()
-        }
+        }*/
+        Details(numberOfTaps: 100).center()
     }
 }

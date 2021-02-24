@@ -66,13 +66,18 @@ extension NavigationElement: TreeDisplayElementBuilder {
         host.submit(navigation)
         navigation.configure()
         
-        context?.pushCallback.content = { [weak navigation] viewBuilder in
+        context?.pushCallback.content = { [weak navigation] viewBuilder, props in
             let element: Element = viewBuilder()
             let container = ContainerDisplayElement()
             // Force the layout of the element.
             ShinyUI.layout(element: element.elementID, in: storable)
             // Create the views.
             ShinyUI.buildDisplayElementTree(element, storable, container)
+            
+            // Add to the storable all the new enviroment variables if the enviroment
+            // variable already exist update it.
+            // TODO: Remove `added` props.
+            let added = addEnviroment(properties: props, in: storable)
 
             // Create a simple host controller to send the view.
             let newViewController = UIViewController()
