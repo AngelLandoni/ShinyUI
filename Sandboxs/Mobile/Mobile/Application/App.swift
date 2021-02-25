@@ -34,9 +34,7 @@ struct Details: View {
     
     var body: some View {
         VStack {
-            //Text("This is the \(theSuperName) number if times you pressed over the thing \(numberOfTaps)")
-            Text("Yes?")
-            Text("Yes?")
+            Text("This is the \(theSuperName) number if times you pressed over the thing \(numberOfTaps)")
             Text("Pop view")
                 .color(.red)
                 .foregroundColor(.white)
@@ -78,7 +76,7 @@ struct App: View {
     @Enviroment var theName: String = "TheName"
     
     var body: some View {
-        /*Navigation {
+        Navigation {
             VStack {
                 Counter(counter: $counter)
                     .center()
@@ -105,7 +103,6 @@ struct App: View {
                         navigationCtx.push(Details(numberOfTaps: counter))
                     }
             }.center()
-        }*/
-        Details(numberOfTaps: 100).center()
+        }
     }
 }

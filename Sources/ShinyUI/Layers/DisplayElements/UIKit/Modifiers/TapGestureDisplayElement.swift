@@ -65,6 +65,11 @@ extension TapGestureModifierElement: TreeDisplayElementBuilder {
         let display = createDisplayElement(type: TapGestureDisplayElement.self,
                                            for: self,
                                            in: storable)
+        
+        if let frame = getFrame(storable) {
+            display.updateFrame(frame)
+        }
+        
         host.submit(display)
         
         display.onTap = action

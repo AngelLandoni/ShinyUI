@@ -44,7 +44,7 @@ extension CenterModifierElement: Layout {
         }
 
         var selfFrame = getFrame(storable) ?? .fromOrigin(.zero)
-
+        
         // Delta = Position where the element should be - last element position.
         // It is carrying the last position so it must get the variation.
         let deltaX = horizontalShift -
@@ -59,7 +59,7 @@ extension CenterModifierElement: Layout {
         shiftPosition(to: child,
                       in: storable,
                       shift: Point(x: deltaX, y: deltaY))
-
+        
         selfFrame.size = constraint
 
         setFrame(storable, frame: selfFrame)

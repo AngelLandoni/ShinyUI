@@ -29,7 +29,7 @@ import Runtime
 import UIKit
 
 // TEMP
-final class TheMainLayer: UIView, DisplayElement {
+final class HostDisplay: UIView, DisplayElement {
     
     func updateFrame(_ frame: ElementFrame) {
         self.frame = frame.asFrame
@@ -68,25 +68,29 @@ public final class HostController<V: View>: UIViewController {
     private let runLoop: MainRunLoopHook = MainRunLoopHook()
 
     // TEMP:
-    let temp: TheMainLayer = TheMainLayer()
+    let hostDisplay: HostDisplay = HostDisplay()
 
     // MARK: Lifecycle
 
     public init(_ rootView: V) {
         self.rootView = rootView
         super.init(nibName: nil, bundle: nil)
-        wakeUp()
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("Not implemented")
     }
+    
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        wakeUp()
+    }
 
     // MARK: Private methods
 
     private func wakeUp() {
-        view.addSubview(temp)
+        view.addSubview(hostDisplay)
         view.backgroundColor = .white
 
         createElements()
@@ -100,6 +104,7 @@ public final class HostController<V: View>: UIViewController {
     private func createElements() {
         // Set the initial size screen.
         world.updateScreenSize(view.frame.size.asSize)
+        hostDisplay.updateFrame(ElementFrame.fromOrigin(view.frame.size.asSize))
 
         // TODO: Move this to a background thread.
         // Generate the rootView using the local `World`.
@@ -108,7 +113,7 @@ public final class HostController<V: View>: UIViewController {
             fatalError(ErrorMessages.emptyRoot)
         }
         layout(element: rootElement.elementID, in: world)
-        render(in: temp, using: world)
+        render(in: hostDisplay, using: world)
     }
 
 
