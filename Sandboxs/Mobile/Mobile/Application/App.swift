@@ -25,21 +25,68 @@
 import Dispatch
 import ShinyUI
 
-struct Counter: View {
+struct Details: View {
     
+    @Enviroment var navigationCtx: NavigationContext
+    
+    var numberOfTaps: Int
+    
+    var body: some View {
+        VStack {
+            Text("This is the number if times you pressed over the thing \(numberOfTaps)")
+            Text("Pop view")
+                .color(.red)
+                .foregroundColor(.white)
+                .font("", 42)
+                .margin {
+                    horizontal(15)
+                    vertical(10)
+                }
+                .decorate {
+                    cornerRadius(15)
+                    color(.red)
+                }
+                .onTap {
+                    navigationCtx.pop()
+                }
+            Text("Push view")
+                .color(.blue)
+                .foregroundColor(.white)
+                .font("", 42)
+                .margin {
+                    horizontal(15)
+                    vertical(10)
+                }
+                .decorate {
+                    cornerRadius(15)
+                    color(.red)
+                }
+                .onTap {
+                    navigationCtx.push(Text("Commnader keeen").center())
+                }
+        }
+        .center()
+        .decorate {
+            cornerRadius(15)
+            color(Color(0x3D7FFF))
+        }
+    }
+}
+
+struct Counter: View {
     @Binding var counter: Int
     
     var body: some View {
         Text("Mobile App ShinyUI \(counter)")
             .font("", 20)
-            .color(Color(0xFFFFFF, alpha: 0x00))
+            .color(.clear)
             .foregroundColor(Color(0xFFFFFFF))
     }
 }
 
 struct App: View {
-    
     @State var counter: Int = 0
+    @Enviroment var navigationCtx: NavigationContext
     
     var body: some View {
         Navigation {
@@ -66,9 +113,9 @@ struct App: View {
                     }
                     .margin(top(20))
                     .onTap {
-                        //context.push(App())
+                        navigationCtx.push(Details(numberOfTaps: counter))
                     }
-            } .center()
+            }.center()
         }
     }
 }

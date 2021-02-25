@@ -15,7 +15,8 @@ let package = Package(
     dependencies: [
     ],
     targets: [
-        .target(name: "ShinyUI", dependencies: [], path: "Sources"),
+        .target(name: "ShinyUI", dependencies: ["Runtime"], path: "Sources/ShinyUI"),
+        .target(name: "Runtime", dependencies: [], path: "Sources/Runtime"),
 
         .testTarget(name: "ShinyUITests", dependencies: ["ShinyUI"])
     ]
