@@ -28,7 +28,7 @@ final class World: Storable {
     fileprivate var screenSize: Size<Float> = .zero
 
     /// Contains all the existing elements in the tree.
-    fileprivate var elements: [ElementID: Element] = [:]
+    fileprivate(set) var elements: [ElementID: Element] = [:]
     /// Contains links between the parent and its children.
     fileprivate var parentToChildren: [ParentElementID: OrderedSet<ChildElementID>] = [:]
     /// Contains links between the child (as the key) and its parent.
@@ -42,7 +42,7 @@ final class World: Storable {
     /// Contains a list of `Element` to be recalculated.
     fileprivate var currentInvalidElements: Set<ElementID> = []
     
-    fileprivate var enviromentStack: [ObjectIdentifier: EnviromentProperty] = [:]
+    fileprivate(set) var enviromentStack: [ObjectIdentifier: EnviromentProperty] = [:]
 
     init() {}
 }
@@ -87,6 +87,11 @@ extension World {
     
     func unlink(child: ElementID) {
         childToParent.removeValue(forKey: child)
+    }
+    
+    func doubleUnlink(child: ElementID, from parent: ElementID) {
+        childToParent.removeValue(forKey: child)
+        parentToChildren[parent]?.remove(child)
     }
 }
 
@@ -204,6 +209,9 @@ extension World {
         _rootElement = element
     }
     
+    /// Updates the root display with the one provided by parameter.
+    ///
+    /// - Parameter element: The `Element` which will become the root `Element`.
     func updateRootDisplay(element: DisplayElement) {
         rootDisplayElement = element
     }
@@ -218,7 +226,10 @@ extension World {
 }
     
 extension World {
-    func clearInvalidElements () {
+    /// Clears the invalidation list.
+    ///
+    /// Clear the invalid elements does not clear the Tree.
+    func clearInvalidElements() {
         currentInvalidElements.removeAll()
     }
 }
@@ -259,6 +270,7 @@ extension World {
         currentInvalidElements.insert(rootElement)
     }
     
+    /// Returns the list of invalid elements.
     var invalidElements: Set<ElementID> {
         currentInvalidElements
     }

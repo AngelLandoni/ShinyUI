@@ -55,6 +55,10 @@ final class AnyStorable: Storable {
         storage.unlink(child: child)
     }
     
+    func doubleUnlink(child: ElementID, from parent: ElementID) {
+        storage.doubleUnlink(child: child, from: parent)
+    }
+    
     func element(for elementID: ElementID) -> Element? {
         storage.element(for: elementID)
     }

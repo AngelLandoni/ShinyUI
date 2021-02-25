@@ -71,5 +71,13 @@ extension World {
         }
         return finalString
     }
+    
+    func printStats() {
+        print("""
+        [World]
+            [+] Number of elements: \(elements.count)
+            [+] Number of enviroment properties: \(enviromentStack.count)
+        """)
+    }
 }
 #endif

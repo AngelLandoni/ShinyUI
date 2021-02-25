@@ -34,6 +34,7 @@ protocol Storable: AnyObject {
     func link(children: OrderedSet<ElementID>, to parent: ElementID)
     func link(parent: ElementID, to child: ElementID)
     func unlink(child: ElementID)
+    func doubleUnlink(child: ElementID, from parent: ElementID)
     
     func element(for elementID: ElementID) -> Element?
     func frame(of elementID: ElementID) -> ElementFrame?

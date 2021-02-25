@@ -42,6 +42,9 @@ public struct NavigationContext {
     var pushCallback: Box<NavigationCallbackBlock?> = Box(nil)
     var popCallBack: Box<(() -> Void)?> = Box(nil)
     
+    /// Push a new `View` into the associated `Navigation`.
+    ///
+    /// - Parameter view: The new `View` to be pushed.
     public func push<V: View>(_ view: V) {
         pushCallback.content?(
             {
@@ -49,7 +52,8 @@ public struct NavigationContext {
                     fatalError("The child can not be linked to any parent")
                 }
                 // Propagate enviroment properties.
-                addEnviroment(properties: currentEnviromentProps, in: storable)
+                let _ = addEnviroment(properties: currentEnviromentProps,
+                                      in: storable)
                 defer {
                     removeEnviroment(properties: currentEnviromentProps,
                                      from: storable)
@@ -65,6 +69,7 @@ public struct NavigationContext {
         )
     }
     
+    /// Pops the current visible view for the associated `Navigation`.
     public func pop() {
         popCallBack.content?()
     }

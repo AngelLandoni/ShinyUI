@@ -30,6 +30,9 @@ final class NavigationDisplayElement: DisplayElement {
     let navigationController = UINavigationController()
     weak var rootController: UIViewController?
     
+    var elements: [ElementID] = []
+    var properties: [[EnviromentProperty]] = [[]]
+    
     func configure() {
         let root = UIViewController()
         navigationController.setViewControllers([root],
@@ -54,6 +57,20 @@ final class NavigationDisplayElement: DisplayElement {
     }
 }
 
+extension UINavigationController {
+    func popViewController(animated: Bool, completion: @escaping () -> ()) {
+        popViewController(animated: animated)
+        
+        if let coordinator = transitionCoordinator {
+            coordinator.animate(alongsideTransition: nil) { _ in
+                completion()
+            }
+        } else {
+            completion()
+        }
+    }
+}
+
 extension NavigationElement: TreeDisplayElementBuilder {
     func buildDisplayElementTree<S: Storable>(_ storable: S,
                                               _ host: DisplayElement) {
@@ -66,7 +83,10 @@ extension NavigationElement: TreeDisplayElementBuilder {
         host.submit(navigation)
         navigation.configure()
         
-        context?.pushCallback.content = { [weak navigation] viewBuilder, props in
+        context?.pushCallback.content = {
+            [weak navigation, weak storable] viewBuilder, props in
+            guard let storable = storable else { return }
+            
             let element: Element = viewBuilder()
             let container = ContainerDisplayElement()
             // Force the layout of the element.
@@ -76,8 +96,10 @@ extension NavigationElement: TreeDisplayElementBuilder {
             
             // Add to the storable all the new enviroment variables if the enviroment
             // variable already exist update it.
-            // TODO: Remove `added` props.
             let added = addEnviroment(properties: props, in: storable)
+            
+            navigation?.properties.append(added)
+            navigation?.elements.append(element.elementID)
 
             // Create a simple host controller to send the view.
             let newViewController = UIViewController()
@@ -90,8 +112,18 @@ extension NavigationElement: TreeDisplayElementBuilder {
             )
         }
         
-        context?.popCallBack.content = { [weak navigation] in
-            navigation?.navigationController.popViewController(animated: true)
+        context?.popCallBack.content = { [weak navigation, weak storable] in
+            navigation?.navigationController.popViewController(animated: true, completion: {
+                guard let storable = storable else { return }
+            
+                guard let lastElement = navigation?.elements.popLast() else { return }
+                guard let lastProps = navigation?.properties.popLast() else { return }
+                
+                removeElementTree(element: lastElement, in: storable)
+                removeEnviroment(properties: lastProps, from: storable)
+                
+                storable.doubleUnlink(child: lastElement, from: self.elementID)
+            })
         }
         
         let child = getChildElementId(for: elementID, in: storable)

@@ -50,6 +50,21 @@ struct Details: View {
                 .onTap {
                     navigationCtx.pop()
                 }
+            Text("Push view")
+                .color(.blue)
+                .foregroundColor(.white)
+                .font("", 42)
+                .margin {
+                    horizontal(15)
+                    vertical(10)
+                }
+                .decorate {
+                    cornerRadius(15)
+                    color(.red)
+                }
+                .onTap {
+                    navigationCtx.push(Text("Commnader keeen").center())
+                }
         }
         .center()
         .decorate {
